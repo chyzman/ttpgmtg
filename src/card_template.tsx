@@ -15,7 +15,6 @@ const SCRYFALL = "https://api.scryfall.com/";
     ui.scale = 0.05;
 
     let canvas = new Canvas();
-
     ui.widget = canvas;
 
     let powerToughnessHolder = new HorizontalBox();

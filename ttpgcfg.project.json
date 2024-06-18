@@ -1,0 +1,10 @@
+{
+  "name": "chyz",
+  "slug": "chyz",
+  "version": "0.0.1",
+  "transpile": true,
+  "guid": {
+    "dev": "0CF38C9B4AEB41419394F6928DC692B2",
+    "prd": "EE4EA820AA8D42BE940CE5110162E80C"
+  }
+}

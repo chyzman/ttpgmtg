@@ -1,16 +1,25 @@
 {
     "compilerOptions": {
-        "checkJs": true,
-        "lib": ["ES2023", "DOM"],
-        "module": "commonjs",
-        "strict": true,
-        "outDir": "./build",
-        "useUnknownInCatchVariables": false,
-        "jsx": "react",
-        "jsxFactory": "jsxInTTPG",
-        "jsxFragmentFactory": "jsxFrag",
-        "rootDir": "./src",
-        "skipLibCheck": true
+      "rootDir": "./src",
+
+      // Enable latest features
+      "lib": ["ESNext", "DOM"],
+      "target": "ESNext",
+      "module": "CommonJS",
+      "moduleDetection": "force",
+      "jsx": "react-jsx",
+      "outDir": "./build",
+      "allowJs": true,
+  
+      // Best practices
+      "strict": true,
+      "skipLibCheck": true,
+      "noFallthroughCasesInSwitch": true,
+  
+      // Some stricter flags (disabled by default)
+      "noUnusedLocals": false,
+      "noUnusedParameters": false,
+      "noPropertyAccessFromIndexSignature": false
     },
     "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }

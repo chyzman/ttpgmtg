@@ -1,10 +1,18 @@
 import { refObject } from "@tabletop-playground/api";
 import { createGlobalContextOptions } from "./globalContext";
 
-const object = refObject;
+const obj = refObject;
 
-object.onCreated.add((obj) => {
-    /* const screenUi = new ScreenUIElement()
+obj.onCreated.add((obj) => {
+    createGlobalContextOptions();
+    obj.destroy();
+})
+
+obj.onTick.add((obj) => obj.destroy());
+
+
+
+/* const screenUi = new ScreenUIElement()
 
 
 
@@ -19,7 +27,7 @@ object.onCreated.add((obj) => {
 
     screenUi.width = 200
 
-    
+
     let closeButton;
     screenUi.widget = new Border().setChild(
         new VerticalBox()
@@ -31,9 +39,5 @@ object.onCreated.add((obj) => {
     closeButton.onClicked.add((_, __) => {
         world.removeScreenUIElement(screenUi);
     })
-    
-    world.addScreenUI(screenUi); */
-    createGlobalContextOptions();
 
-    object.destroy();
-})
+    world.addScreenUI(screenUi); */

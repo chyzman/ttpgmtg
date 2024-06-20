@@ -1,4 +1,4 @@
-const fetchDeckList = (url: URL) => {
+const fetchDeckList = async (url: URL) => {
     console.log(`attempting to fetch decklist from "${url.hostname}"...`)
     switch (true) {
         case (url.hostname.includes("archidekt.com")): {
@@ -19,7 +19,7 @@ const fetchDeckList = (url: URL) => {
         }
         case (url.hostname.includes("deckstats.net")): {
             console.log(`detected deckstats url: ${url}`)
-            return parseDeckstats(url);
+            return await parseDeckstats(url);
         }
         case (url.hostname.includes("mtgtop8.com")): {
             console.log(`detected mtgtop8 url: ${url}`)
@@ -66,11 +66,12 @@ const parseArchidekt = (url: URL) => {
 }
 
 
-const parseDeckstats = (url: URL) => {
+const parseDeckstats = async (url: URL) => {
     let path = url.pathname.split("/");
-    fetch(`https://deckstats.net/api.php?action=get_deck&id_type=saved&owner_id=${path[2]}&id=${path[3].replace(/\D/g, "")}&response_type=list`)
+    //the deck list from deckstats is probably not exactly the format we need it in, idk what the format we need it in is yet tho so it is what it is for now
+    return await fetch(`https://deckstats.net/api.php?action=get_deck&id_type=saved&owner_id=${path[2]}&id=${path[3].replace(/\D/g, "")}&response_type=list`)
         .then(async res => await res.json())
-        .then(data => cleanDeckList(data.list.split("\n")));
+        .then(data => cleanDeckList(data.list.trim().split("\n")));
 }
 
 
@@ -78,5 +79,5 @@ const cleanDeckList = (list: string[]) => {
     return list.filter(value => value.length > 0 && !value.startsWith("//"))
 }
 
-
-console.log(fetchDeckList(new URL("https://deckstats.net/decks/151892/2252888-zaxarra?lng=en")))
+// this is for testing outside ttpg
+console.log(await fetchDeckList(new URL("https://deckstats.net/decks/151892/2252888-zaxarra?lng=en")))

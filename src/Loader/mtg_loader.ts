@@ -1,10 +1,10 @@
 import { refObject } from "@tabletop-playground/api";
-import { createGlobalContextOptions } from "./globalContext";
+import { loadMtg } from "./chyzMtg";
 
 const obj = refObject;
 
 obj.onCreated.add((obj) => {
-    createGlobalContextOptions();
+    loadMtg(true);
     obj.destroy();
 })
 

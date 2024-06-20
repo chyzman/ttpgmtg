@@ -1,0 +1,18 @@
+{
+  "version": "3",
+  "remote": {
+    "https://cdn.skypack.dev/-/archidekt@v0.0.14-oTJtzXIHb66uYUyeVZSp/dist=es2019,mode=imports/optimized/archidekt.js": "e3811859cbbc95008f9c3ce3d0eeac735822117ae577d788de3f8dfdc827f0ca",
+    "https://cdn.skypack.dev/-/axios@v0.18.1-aPI2Rtjau6Ss5k0TXGiJ/dist=es2019,mode=imports/optimized/axios.js": "f54b3b6faf123ab66f68db13656d300154937ab2c0ebd4bf2af5d62a8c85e46b",
+    "https://cdn.skypack.dev/archidekt": "174bc5850093a1d70acfccf1e3d49499ea62a6311ace8ab3ed3413b167221017"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@tabletop-playground/api@^0.41.0",
+        "npm:jsx-in-ttpg@^2.2.3",
+        "npm:ttpg-scripts@^1.5.0",
+        "npm:typescript@^5.3.3"
+      ]
+    }
+  }
+}

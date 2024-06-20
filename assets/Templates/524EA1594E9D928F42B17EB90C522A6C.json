@@ -25,7 +25,7 @@
 	"Flippable": false,
 	"AutoStraighten": true,
 	"ShouldSnap": true,
-	"ScriptName": "mtg_loader.js",
+	"ScriptName": "Loader/mtg_loader.js",
 	"Blueprint": "",
 	"Models": [
 		{
@@ -45,9 +45,9 @@
 			},
 			"Rotation":
 			{
-				"X": 1.7570248306232383e-17,
+				"X": 8.7851241531171901e-18,
 				"Y": 90,
-				"Z": 1.7570248306230041e-17
+				"Z": 8.7851241531148435e-18
 			},
 			"Texture": "",
 			"NormalMap": "",

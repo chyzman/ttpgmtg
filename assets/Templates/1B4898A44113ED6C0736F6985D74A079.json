@@ -7,7 +7,7 @@
 	"Friction": 0.7,
 	"Restitution": 0,
 	"Density": 0.5,
-	"SurfaceType": "Cardboard",
+	"SurfaceType": "Metal",
 	"Roughness": 1,
 	"Metallic": 0,
 	"PrimaryColor":

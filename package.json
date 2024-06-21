@@ -15,7 +15,8 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "jsx-in-ttpg": "^2.2.3"
+    "jsx-in-ttpg": "^2.2.3",
+    "ttpg-darrell": "^1.0.50"
   },
   "devDependencies": {
     "@tabletop-playground/api": "^0.41.0",

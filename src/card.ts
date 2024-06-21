@@ -1,18 +1,6 @@
-import {
-    Color,
-    GameObject,
-    UIElement,
-    refObject,
-    Vector,
-    Text,
-    Canvas,
-    Rotator,
-    Border,
-    Widget,
-    TextJustification,
-    Slider, Button, UIZoomVisibility, world, PlayerPermission
-} from "@tabletop-playground/api";
+import {Color, GameObject, UIElement, refObject, Vector, Text, Canvas, Rotator, Border, Widget, TextJustification, Button, UIZoomVisibility, world, PlayerPermission} from "@tabletop-playground/api";
 import {loadMtg} from "./Loader/chyzMtg";
+import {UiVisibility} from "ttpg-darrell";
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
@@ -70,8 +58,11 @@ let uiHeightMult = 0;
     ui.widget = canvas;
     hoverUI.widget = hoverCanvas;
     zoomedUI.widget = zoomedCanvas;
+
+    const hoverUiVisibility = new UiVisibility(hoverUI, obj);
+
     obj.addUI(ui);
-    obj.addUI(hoverUI);
+    obj.addUI(hoverUI)
     obj.addUI(zoomedUI);
 
     obj.onTick.add((o) => {
@@ -88,25 +79,24 @@ let uiHeightMult = 0;
             extent.x /= scale.x
             extent.y /= scale.y
             const isInside = pos.x >= -extent.x && pos.x <= extent.x && pos.y >= -extent.y && pos.y <= extent.y
-            if (isInside || player.getHighlightedObject() == obj) permission.addPlayer(player);
+            if ((isInside || player.getHighlightedObject() === obj) !== hoverUiVisibility.isVisibleToPlayer(player.getSlot())) {
+                hoverUiVisibility.togglePlayer(player.getSlot());
+            }
         });
-        if (permission.value === 0) {
-            obj.removeUIElement(hoverUI)
-        } else if (!obj.getUIs().includes(hoverUI)) {
-            obj.addUI(hoverUI)
-        }
-        if (hoverUI.players.value != permission.value) {
+        if (hoverUI.players.value !== permission.value) {
             hoverUI.players = permission;
+            obj.updateUI(ui);
             obj.updateUI(hoverUI);
+            obj.updateUI(zoomedUI)
         }
     }, 50);
     obj.onDestroyed.add(() => clearInterval(interval));
 
     function createUIElement(zoomVisibility: number = UIZoomVisibility.Both) {
         const ui = new UIElement();
-        const getPosition = () => new Vector(0, 0, -(obj.getSize().z / 2 - 0.01));
         ui.scale = SCALE;
-        ui.position = getPosition();
+        // ui.position = calculatePosition();
+        ui.position = new Vector(0, 0, -0.05);
         ui.rotation = new Rotator(180, 180, 0);
         ui.useWidgetSize = false;
         ui.width = obj.getSize().y * 10 / SCALE;
@@ -114,9 +104,13 @@ let uiHeightMult = 0;
         ui.zoomVisibility = zoomVisibility;
         uiWidthMult = ui.width / IMG_WIDTH;
         uiHeightMult = ui.height / IMG_HEIGHT;
-        const interval = setInterval(() => ui.position = getPosition());
-        obj.onDestroyed.add(() => clearInterval(interval));
+        // const interval = setInterval(() => ui.position = calculatePosition(), 100);
+        // obj.onDestroyed.add(() => clearInterval(interval));
         return ui;
+
+        // function calculatePosition() {
+        //     return new Vector(0, 0, -(obj.getSize().z / 2 + 1/1000))
+        // }
     }
 })(refObject);
 

@@ -7,15 +7,15 @@ const fetchDeckList = async (url: URL) => {
         }
         case (url.hostname.includes("mtggoldfish.com")): {
             console.log(`detected mtggoldfish url: ${url}`)
-            break;
+            return "mtgGoldfish isn't setup yet, sorry!"
         }
         case (url.hostname.includes("moxfield.com")): {
             console.log(`detected moxfield url: ${url}`)
-            break;
+            return "moxfield isn't setup yet, sorry!"
         }
         case (url.hostname.includes("aetherhub.com")): {
             console.log(`detected aetherhub url: ${url}`)
-            break;
+            return "aetherhub isn't setup yet, sorry!"
         }
         case (url.hostname.includes("deckstats.net")): {
             console.log(`detected deckstats url: ${url}`)
@@ -23,31 +23,31 @@ const fetchDeckList = async (url: URL) => {
         }
         case (url.hostname.includes("mtgtop8.com")): {
             console.log(`detected mtgtop8 url: ${url}`)
-            break
+            return "mtgtop8 isn't setup yet, sorry!"
         }
         case (url.hostname.includes("mtgvault.com")): {
             console.log(`detected mtgvault url: ${url}`)
-            break;
+            return "mtgvault isn't setup yet, sorry!"
         }
         case (url.hostname.includes("cubecobra.com")): {
             console.log(`detected cubecobra url: ${url}`)
-            break;
+            return "cubecobra isn't setup yet, sorry!"
         }
         case (url.hostname.includes("tappedout.net")): {
             console.log(`detected tappedout url: ${url}`)
-            break;
+            return "tappedout isn't setup yet, sorry!"
         }
         case (url.hostname.includes("deckbox.org")): {
             console.log(`detected deckbox url: ${url}`)
-            break;
+            return "deckbox isn't setup yet, sorry!"
         }
         case (url.hostname.includes("manastack.com")): {
             console.log(`detected manastack url: ${url}`)
-            break;
+            return "manastack isn't setup yet, sorry!"
         }
         case (url.hostname.includes("deckedbuilder.com")): {
             console.log(`detected deckedbuilder url: ${url}`)
-            break;
+            return "deckedbuilder isn't setup yet, sorry!"
         }
         default: {
             console.log(`Unsupported URL: \"${url}\"`);
@@ -61,8 +61,8 @@ const parseArchidekt = (url: URL) => {
         .then(async res => await res.json()).then(data => {
         const deckList: string[] = [];
         // idfk what's going on this doesn't appear to actually give you the fucking cards to make a decklist so idk what to do here lmao
-        console.log(data);
     });
+    return "Archidekt isnt setup yet, sorry!"
 }
 
 
@@ -80,4 +80,4 @@ const cleanDeckList = (list: string[]) => {
 }
 
 // this is for testing outside ttpg
-console.log(await fetchDeckList(new URL("https://deckstats.net/decks/151892/2252888-zaxarra?lng=en")))
+//console.log(await fetchDeckList(new URL("https://deckstats.net/decks/151892/2252888-zaxarra?lng=en")))

@@ -1,4 +1,4 @@
-import {globalEvents, world} from "@tabletop-playground/api";
+import {Border, Button, globalEvents, MultilineTextBox, Player, ScreenUIElement, Text, TextBox, VerticalBox, world} from "@tabletop-playground/api";
 import {spawnDeck} from "../contextMenu/spawn_deck";
 
 let mtgLoaded = false;
@@ -27,14 +27,44 @@ const loadCustomActions = () => {
     world.addCustomAction(`[${ID}] Spawn Deck`, "Open the Deck importer UI", SPAWN_DECK_ACTION);
 
     globalEvents.onCustomAction.add((player, id) => {
-        player.showMessage(`FUCK YOU!!!!! (${id})`)
-        console.log(id)
         switch (id) {
             case SPAWN_DECK_ACTION: {
-                console.log("boobs (spawn_deck)");
-                spawnDeck(player);
+                displayDeckLoader(player)
                 break;
             }
         }
     });
 };
+
+const displayDeckLoader = (player: Player) => {
+    const screenUi = new ScreenUIElement()
+
+    screenUi.anchorX = 0.5
+    screenUi.anchorY = 0.5
+
+    screenUi.relativePositionX = true
+    screenUi.relativePositionY = true
+
+    screenUi.positionX = 0.5
+    screenUi.positionY = 0.5
+
+    screenUi.width = 200
+    screenUi.height = 1000
+
+
+    let closeButton;
+    screenUi.widget = new Border().setChild(
+        new VerticalBox()
+            .addChild(new Text().setText("idk what to put there").setJustification(1))
+            .addChild(new TextBox())
+            .addChild(closeButton = new Button().setText("Close").setJustification(1))
+            .addChild(new MultilineTextBox().setMaxLength(Number.MAX_VALUE))
+    )
+
+    closeButton.onClicked.add((_, __) => {
+        world.removeScreenUIElement(screenUi);
+    })
+
+    screenUi.players.addPlayer(player)
+    world.addScreenUI(screenUi);
+}

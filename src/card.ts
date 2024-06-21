@@ -19,7 +19,7 @@ let uiHeightMult = 0;
 
     const ui = createUIElement();
     const hoverUI = createUIElement(UIZoomVisibility.Regular);
-    const zoomedUI = createUIElement(UIZoomVisibility.ZoomedOnly);
+    const zoomedUI = createUIElement(-IMG_WIDTH/100, UIZoomVisibility.ZoomedOnly);
 
     const canvas = new Canvas();
     const hoverCanvas = new Canvas();
@@ -53,6 +53,8 @@ let uiHeightMult = 0;
 
     let toughnessDecreaser = imgPositionedChild(hoverCanvas, new Button().setText("-"), startX + numWidth + slashWidth, startY + height, numWidth, modifierHeight);
     toughnessDecreaser.onClicked.add(() => toughness--);
+
+    let testAbilities = testImgPositionedChild(BLACK, zoomedCanvas, new Text().setText("Testing abilities thingy here idfk man whatever").setAutoWrap(true).setFontSize(font), 0, 0, IMG_WIDTH, IMG_HEIGHT);
 
 
     ui.widget = canvas;
@@ -92,14 +94,16 @@ let uiHeightMult = 0;
     }, 50);
     obj.onDestroyed.add(() => clearInterval(interval));
 
-    function createUIElement(zoomVisibility: number = UIZoomVisibility.Both) {
+    function createUIElement(offset: number = 0, zoomVisibility: number = UIZoomVisibility.Both) {
         const ui = new UIElement();
         ui.scale = SCALE;
         // ui.position = calculatePosition();
         ui.position = new Vector(0, 0, -0.05);
         ui.rotation = new Rotator(180, 180, 0);
+        //its too late for me to know what the surrounding code does but jakob wrote it, ideally the hoverUI would be 3x the width of the card (+ padding ig) but idk how to do that so i just fucking moved it, pls fix
+        ui.position = ui.position.add(new Vector(0, offset, 0));
         ui.useWidgetSize = false;
-        ui.width = obj.getSize().y * 10 / SCALE;
+        ui.width = obj.getSize().y * 30 / SCALE;
         ui.height = obj.getSize().x * 10 / SCALE;
         ui.zoomVisibility = zoomVisibility;
         uiWidthMult = ui.width / IMG_WIDTH;

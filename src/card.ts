@@ -103,7 +103,7 @@ let uiHeightMult = 0;
         //its too late for me to know what the surrounding code does but jakob wrote it, ideally the hoverUI would be 3x the width of the card (+ padding ig) but idk how to do that so i just fucking moved it, pls fix
         ui.position = ui.position.add(new Vector(0, offset, 0));
         ui.useWidgetSize = false;
-        ui.width = obj.getSize().y * 10 / SCALE;
+        ui.width = obj.getSize().y * 30 / SCALE;
         ui.height = obj.getSize().x * 10 / SCALE;
         ui.zoomVisibility = zoomVisibility;
         uiWidthMult = ui.width / IMG_WIDTH;

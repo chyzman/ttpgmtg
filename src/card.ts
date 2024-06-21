@@ -54,8 +54,7 @@ let uiHeightMult = 0;
     let toughnessDecreaser = imgPositionedChild(hoverCanvas, new Button().setText("-"), startX + numWidth + slashWidth, startY + height, numWidth, modifierHeight);
     toughnessDecreaser.onClicked.add(() => toughness--);
 
-    let testAbilities = testImgPositionedChild(BLACK, zoomedCanvas, new Text().setText("Testing abilities thingy here idfk man whatever").setAutoWrap(true).setFontSize(font), 0, 0, IMG_WIDTH, IMG_HEIGHT);
-
+    let testAbilities = testImgPositionedChild(BLACK, zoomedCanvas, new Text().setText("Testing abilities thingy here idfk man whatever").setAutoWrap(true).setFontSize(font), 0, 0, IMG_WIDTH, IMG_HEIGHT)
 
     ui.widget = canvas;
     hoverUI.widget = hoverCanvas;
@@ -63,9 +62,9 @@ let uiHeightMult = 0;
 
     const hoverUiVisibility = new UiVisibility(hoverUI, obj);
 
-    obj.addUI(ui);
-    obj.addUI(hoverUI)
-    obj.addUI(zoomedUI);
+    // obj.addUI(ui);
+    obj.addUI(hoverUI);
+    // obj.addUI(zoomedUI);
 
     obj.onTick.add((o) => {
         powerDisplay.setText(power.toString());
@@ -87,9 +86,9 @@ let uiHeightMult = 0;
         });
         if (hoverUI.players.value !== permission.value) {
             hoverUI.players = permission;
-            obj.updateUI(ui);
+            // obj.updateUI(ui);
             obj.updateUI(hoverUI);
-            obj.updateUI(zoomedUI)
+            // obj.updateUI(zoomedUI);
         }
     }, 50);
     obj.onDestroyed.add(() => clearInterval(interval));
@@ -101,9 +100,9 @@ let uiHeightMult = 0;
         ui.position = new Vector(0, 0, -0.05);
         ui.rotation = new Rotator(180, 180, 0);
         //its too late for me to know what the surrounding code does but jakob wrote it, ideally the hoverUI would be 3x the width of the card (+ padding ig) but idk how to do that so i just fucking moved it, pls fix
-        ui.position = ui.position.add(new Vector(0, offset, 0));
+        // ui.position = ui.position.add(new Vector(0, offset, 0));
         ui.useWidgetSize = false;
-        ui.width = obj.getSize().y * 30 / SCALE;
+        ui.width = obj.getSize().y * 10 / SCALE;
         ui.height = obj.getSize().x * 10 / SCALE;
         ui.zoomVisibility = zoomVisibility;
         uiWidthMult = ui.width / IMG_WIDTH;

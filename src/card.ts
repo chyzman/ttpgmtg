@@ -1,6 +1,7 @@
-import {Color, GameObject, UIElement, refObject, Vector, Text, Canvas, Rotator, Border, Widget, TextJustification, Button, UIZoomVisibility, world, PlayerPermission} from "@tabletop-playground/api";
-import {loadMtg} from "./Loader/chyzMtg";
+import {Color, GameObject, UIElement, refObject, Vector, Text, Canvas, Rotator, Border, Widget, TextJustification, Button, UIZoomVisibility, world, PlayerPermission, Card} from "@tabletop-playground/api";
+import {loadMtg, CARD_CACHE} from "./Loader/chyzMtg";
 import {UiVisibility} from "ttpg-darrell";
+import {Card as ScryfallCard} from "scryfall-api";
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
@@ -13,6 +14,26 @@ let uiHeightMult = 0;
 
 ((obj: GameObject) => {
     loadMtg(false);
+
+    let card: ScryfallCard;
+
+    obj.onTick.add(async (o) => {
+        const thisCard = obj as Card;
+        if (card === undefined) {
+            if (thisCard.getCardDetails().textureOverrideURL !== "") {
+                await CARD_CACHE.getCardFromUrl(new URL((obj as Card).getCardDetails().textureOverrideURL)).then(card => {
+                    if (card !== undefined && card.image_uris?.png !== undefined) {
+                        thisCard.setTextureOverrideURL(card.image_uris.png);
+                        console.log(card);
+                    }
+                });
+            }
+        }
+    });
+
+
+
+
     let power = 2;
     let toughness = 3;
     let tapped = false;

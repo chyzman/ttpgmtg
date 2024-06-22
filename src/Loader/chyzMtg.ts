@@ -1,11 +1,14 @@
 import {Border, Button, globalEvents, HorizontalAlignment, LayoutBox, MultilineTextBox, Player, ScreenUIElement, Text, TextBox, TextJustification, VerticalAlignment, VerticalBox, Widget, world} from "@tabletop-playground/api";
 import {IWindowWidget, PlayerWindow, Window, WindowParams, WindowWidgetParams} from "ttpg-darrell";
+import {CardCache} from "../utils/card_cache";
+
+export const ID = "CHYZMTG"
+
+export const id = (value: string) => ID + ":" + value
 
 let mtgLoaded = false;
 
-const ID = "CHYZMTG"
-
-export const id = (value: string) => ID + ":" + value
+export const CARD_CACHE = new CardCache()
 
 export const loadMtg = (complainIfAlreadyLoaded: boolean = false) => {
     if (mtgLoaded) {

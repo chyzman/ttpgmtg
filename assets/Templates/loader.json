@@ -1,7 +1,7 @@
 {
 	"Type": "Generic",
 	"GUID": "524EA1594E9D928F42B17EB90C522A6C",
-	"Name": "MTG Loader",
+	"Name": "CHYZMTG Loader",
 	"Metadata": "",
 	"CollisionType": "Penetrable",
 	"Friction": 1,
@@ -45,9 +45,9 @@
 			},
 			"Rotation":
 			{
-				"X": 8.7851241531171901e-18,
+				"X": 0,
 				"Y": 90,
-				"Z": 8.7851241531148435e-18
+				"Z": 0
 			},
 			"Texture": "",
 			"NormalMap": "",

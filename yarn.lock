@@ -901,7 +901,7 @@ to-regex-range@^5.0.1:
   dependencies:
     is-number "^7.0.0"
 
-ttpg-darrell@^1.0.50:
+ttpg-darrell@^1.0.51:
   version "1.0.51"
   resolved "https://registry.npmjs.org/ttpg-darrell/-/ttpg-darrell-1.0.51.tgz"
   integrity sha512-0UzV0SBLCVCjn5JLS+dKi5yh54Hfj0Nfq9WS5sqXgCWzRzOzPgn7XaXg5RvxhqDLZAyaMfKvNslH/Ivl+rSWbg==

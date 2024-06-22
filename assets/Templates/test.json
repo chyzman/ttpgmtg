@@ -1,7 +1,7 @@
 {
 	"Type": "Generic",
 	"GUID": "F82D565D4F3B36656AF1A9B9C76AC56D",
-	"Name": "Test Cube Template",
+	"Name": "Test Cube",
 	"Metadata": "",
 	"CollisionType": "Regular",
 	"Friction": 0.7,

@@ -17,7 +17,7 @@
   "dependencies": {
     "jsx-in-ttpg": "^2.2.3",
     "scryfall-api": "^3.2.5",
-    "ttpg-darrell": "^1.0.50"
+    "ttpg-darrell": "^1.0.51"
   },
   "devDependencies": {
     "@tabletop-playground/api": "^0.41.0",

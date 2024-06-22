@@ -1,5 +1,5 @@
 {
-  "name": "chyz",
+  "name": "chyzmtg",
   "version": "0.0.1",
   "scripts": {
     "setup": "ttpg-scripts setup",
@@ -13,7 +13,7 @@
     "postpublish": "ttpg-scripts postpublish"
   },
   "keywords": [],
-  "author": "",
+  "author": "chyzman",
   "dependencies": {
     "jsx-in-ttpg": "^2.2.3",
     "scryfall-api": "^3.2.5",

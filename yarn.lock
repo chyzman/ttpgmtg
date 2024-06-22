@@ -789,7 +789,7 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
 
 scryfall-api@^3.2.5:
   version "3.2.5"
-  resolved "https://registry.npmjs.org/scryfall-api/-/scryfall-api-3.2.5.tgz"
+  resolved "https://registry.yarnpkg.com/scryfall-api/-/scryfall-api-3.2.5.tgz#578dc07f4d62c036cf44e71031e5bbf632f1c43d"
   integrity sha512-Zz1/kcd3MtPmedWFLGiHmLLZbUDBltx89ggkbWXgwFkQW1ob6sViIGgGaU+1Zah7VDzqf5ni03imbb5KWbYd+Q==
 
 serialize-javascript@^6.0.1:

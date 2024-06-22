@@ -31,9 +31,6 @@ let uiHeightMult = 0;
         }
     });
 
-
-
-
     let power = 2;
     let toughness = 3;
     let tapped = false;

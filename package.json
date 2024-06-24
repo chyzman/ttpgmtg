@@ -15,9 +15,7 @@
   "keywords": [],
   "author": "chyzman",
   "dependencies": {
-    "axios": "^1.7.2",
     "jsx-in-ttpg": "^2.2.3",
-    "scryfall-api": "^3.2.5",
     "ttpg-darrell": "^1.0.51"
   },
   "devDependencies": {

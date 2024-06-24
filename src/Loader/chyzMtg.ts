@@ -3,6 +3,7 @@ import {IWindowWidget, PlayerWindow, Window, WindowParams, WindowWidgetParams} f
 import {CardCache} from "../utils/card_cache";
 
 export const ID = "CHYZMTG"
+export const SCRYFALL = "https://api.scryfall.com/";
 
 export const id = (value: string) => ID + ":" + value
 

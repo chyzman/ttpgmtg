@@ -1,14 +1,15 @@
-import {Cards, Card as ScryfallCard} from 'scryfall-api';
+import { MtgCard } from "../api/card/card";
+import { SCRYFALL } from "../Loader/chyzMtg";
 
 export class CardCache {
-    cardCacheByID = new Map<string, ScryfallCard>();
-    cardCacheByName = new Map<string, ScryfallCard>();
+    cardCacheByID = new Map<string, MtgCard>();
+    cardCacheByName = new Map<string, MtgCard>();
 
-    async getCardFromId(id: string): Promise<ScryfallCard | undefined> {
+    async getCardFromId(id: string): Promise<MtgCard | undefined> {
         if (this.cardCacheByID.has(id)) {
             return Promise.resolve(this.cardCacheByID.get(id)!);
         } else {
-            const card = await Cards.byId(id);
+            const card = fetch(SCRYFALL + "cards/" + id).then(response => response.json())
             if (card !== undefined) {
                 this.cardCacheByID.set(id, card);
                 this.cardCacheByName.set(card.name, card);

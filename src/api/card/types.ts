@@ -15,12 +15,12 @@ export interface MtgCardBase {
   mtgo_id?: number;
   multiverse_ids?: number[];
   oracle_id?: string;
-  prints_search_uri: URL;
-  rulings_uri: URL;
-  scryfall_uri: URL;
+  prints_search_uri: string;
+  rulings_uri: string;
+  scryfall_uri: string;
   tcgplayer_etched_id?: number;
   tcgplayer_id?: number;
-  uri: URL;
+  uri: string;
 }
 
 export interface MtgCardGameplay {
@@ -82,13 +82,13 @@ export interface MtgCardPrint {
   related_uris: MtgCardRelatedUris;
   released_at: Date;
   reprint: boolean;
-  scryfall_set_uri: URL;
+  scryfall_set_uri: string;
   security_stamp?: MtgCardSecurityStamp;
   set: string;
   set_name: string;
-  set_search_uri: URL;
+  set_search_uri: string;
   set_type: MtgSetType;
-  set_uri: URL;
+  set_uri: string;
   story_spotlight: boolean;
   textless: boolean;
   variation: boolean;
@@ -122,12 +122,12 @@ export interface MtgCardFace {
 }
 
 export interface MtgCardImageUris {
-  png: URL;
-  border_crop: URL;
-  art_crop: URL;
-  large: URL;
-  normal: URL;
-  small: URL;
+  png: string;
+  border_crop: string;
+  art_crop: string;
+  large: string;
+  normal: string;
+  small: string;
 }
 
 export interface MtgCardLegalities {
@@ -157,7 +157,7 @@ export interface MtgCardLegalities {
 
 export interface MtgCardPeview {
   source: string;
-  source_uri: URL;
+  source_uri: string;
   previewed_at: Date;
 }
 
@@ -184,7 +184,7 @@ export interface MtgRelatedCard {
   id: string;
   name: string;
   type_line: string;
-  uri: URL;
+  uri: string;
 }
 
 export interface MtgCardRelatedUris {

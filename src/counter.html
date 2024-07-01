@@ -68,13 +68,13 @@
     e.preventDefault();
     let multiplier = e.shiftKey ? 10 : 1;
     multiplier *= e.ctrlKey ? 100 : 1;
-    increment(-multiplier + Math.sign(e.deltaY));
+    increment(-multiplier * Math.sign(e.deltaY));
   }, {
     passive: false
   });
 
   function increment(amount) {
-    setNum(BigInt(num) !== undefined ? (BigInt(num) * BigInt(2)).toString() : amount);
+    setNum(BigInt(num) !== undefined ? (BigInt(num) + BigInt(2)).toString() : amount);
   }
 
   function setNum(newNum) {

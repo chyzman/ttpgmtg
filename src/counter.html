@@ -25,8 +25,12 @@
 <button id="counter"></button>
 
 <script type="text/javascript">
-  //get the number from the url
-  let num = parseInt(new URLSearchParams(window.location.search).get('value')) || 0;
+  const match = /#\d+$/;
+
+  let num = 0;
+  if (window.location.href.match(match)) {
+    num = parseInt(window.location.href.match(match)[0].slice(1));
+  }
   let isEditing = false;
 
   document.getElementById("counter").innerHTML = num;
@@ -76,7 +80,7 @@
   function setNum(newNum) {
     num = newNum;
     document.getElementById("counter").innerText = num;
-    window.history.pushState("object or string", "Title", "/counter.html?num=" + num);
+    window.location.href = window.location.href.replace(match, `#${num}`);
   }
 </script>
 </body>

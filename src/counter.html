@@ -41,8 +41,8 @@
       }
 
       button:hover {
-          margin: 0.25rem 0.5rem;
-          padding: 0.25rem 0.5rem;
+          margin: 0.25rem 0.25rem;
+          padding: 0.25rem 0.75rem;
       }
 
       @keyframes bg-gradient {
@@ -88,7 +88,7 @@
     if (currentUrl.lastIndexOf("#") !== -1) {
       currentUrl = currentUrl.slice(0, currentUrl.lastIndexOf("#"));
     }
-    window.location.href = currentUrl + "#" + JSON.stringify({ value: num, width: document.getElementById("counter").offsetWidth });
+    window.location.href = currentUrl + "#" + JSON.stringify({ value: num, width: document.getElementById("counter").clientWidth });
   }
 </script>
 </body>

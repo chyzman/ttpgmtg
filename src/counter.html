@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <title>Counter</title>
+  <!--      button width should be just enough for the text -->
   <style>
       body {
           margin: 0;
@@ -13,11 +14,13 @@
           align-items: center;
           height: 100vh;
       }
-
       button {
-          width: 100%;
-          height: 100%;
-          font-size: 5em;
+          font-size: 2rem;
+          padding: 0.5rem 1rem;
+          border: 1px solid #000;
+          border-radius: 5px;
+          background-color: #fff;
+          cursor: pointer;
       }
   </style>
 </head>
@@ -25,13 +28,11 @@
 <button id="counter"></button>
 
 <script type="text/javascript">
-  const match = /#\d+$/;
-
   let num = 0;
-  if (window.location.href.match(match)) {
-    num = parseInt(window.location.href.match(match)[0].slice(1));
+  if (window.location.href.lastIndexOf('#') !== -1) {
+    const data = JSON.parse(decodeURI(window.location.href.slice(window.location.href.lastIndexOf('#') + 1)));
+    num = data.value;
   }
-  let isEditing = false;
 
   document.getElementById("counter").innerHTML = num;
 
@@ -44,43 +45,22 @@
     passive: false,
   });
 
-  document.getElementById('counter').addEventListener('dblclick', () => {
-    if (!isEditing) {
-      isEditing = true;
-      editNumber();
-    }
-  });
-
   function increment(amount) {
     setNum(num + amount);
-  }
-
-  function editNumber() {
-    const counterButton = document.getElementById('counter');
-    counterButton.contentEditable = true;
-    counterButton.focus();
-
-    // Save changes when focus is lost (blur event)
-    counterButton.addEventListener('blur', () => {
-      setNum(parseInt(counterButton.innerText) || 0);
-      window.history.pushState("object or string", "Title", "/counter.html?num=" + num);
-      isEditing = false;
-      counterButton.contentEditable = false; // Disable editing mode
-    });
-
-    // Prevent line breaks on Enter key
-    counterButton.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        counterButton.blur(); // Save and exit on Enter key
-      }
-    });
   }
 
   function setNum(newNum) {
     num = newNum;
     document.getElementById("counter").innerText = num;
-    window.location.href = window.location.href.replace(match, `#${num}`);
+    updateUrl();
+  }
+
+  function updateUrl() {
+    let currentUrl = window.location.href;
+    if (currentUrl.lastIndexOf('#') !== -1) {
+      currentUrl = currentUrl.slice(0, currentUrl.lastIndexOf('#'));
+    }
+    window.location.href = currentUrl + "#" + JSON.stringify({value:num,width:document.getElementById("counter").offsetWidth});
   }
 </script>
 </body>

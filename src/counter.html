@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+      body {
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+      }
+
+      button {
+          width: 100%;
+          height: 100%;
+          font-size: 5em;
+      }
+  </style>
+</head>
+<body>
+<button id="counter"></button>
+
+<script type="text/javascript">
+  let num = 0;
+
+  document.getElementById("counter").innerHTML = num;
+
+  document.getElementById("counter").addEventListener("click", () => {
+    num = 0;
+    document.getElementById("counter").innerText = num;
+  });
+
+  document.addEventListener("wheel", (e) => {
+    let multiplier = e.shiftKey ? 10 : 1;
+    multiplier *= e.ctrlKey ? 100 : 1;
+    increment(-multiplier * Math.sign(e.deltaY));
+  });
+
+  function increment(amount) {
+    num += amount;
+    document.getElementById("counter").innerText = num;
+    window.history.pushState("object or string", "Title", "/test.html?num=" + num);
+  }
+</script>
+</body>
+</html>

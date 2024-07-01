@@ -1,9 +1,9 @@
-import { Border, Button, Card, Color, GameObject, LayoutBox, PlayerPermission, refObject, Rotator, Text, UIElement, UIZoomVisibility, Vector, VerticalBox, world } from "@tabletop-playground/api";
+import { Border, Button, Card, Color, GameObject, LayoutBox, PlayerPermission, refObject, Rotator, Text, UIElement, UIZoomVisibility, Vector, VerticalBox, WebBrowser, world } from "@tabletop-playground/api";
 import { CARD_CACHE, CARD_UTIL, loadMtg } from "./Loader/chyzMtg";
 import { MtgCard } from "./api/card/types";
 import { jsxInTTPG, render } from "jsx-in-ttpg";
 import { MtgRulings } from "./api/ruling/types";
-import { TriggerableMulticastDelegate } from "ttpg-darrell";
+import { TriggerableMulticastDelegate, UiVisibility } from "ttpg-darrell";
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
@@ -74,8 +74,24 @@ function initCard(obj: Card) {
   const counterModifiersElement = createUiElement();
   const counterToggled = new TriggerableMulticastDelegate<() => void>();
 
+  let hovered = false;
+
+  const hoverChecker = setInterval(() => {
+    const permission = new PlayerPermission();
+    const scale = obj.getScale();
+    const extent = obj.getExtent(false, true);
+    extent.x /= scale.x;
+    extent.y /= scale.y;
+    hovered = world.getAllPlayers().some(player => {
+      const pos = obj.worldPositionToLocal(player.getCursorPosition());
+      const isInside = pos.x >= -extent.x && pos.x <= extent.x && pos.y >= -extent.y && pos.y <= extent.y;
+      return isInside || player.getHighlightedObject() === obj;
+    });
+  }, 50);
+  obj.onDestroyed.add(() => clearInterval(hoverChecker));
+
   const cardInitializer = setInterval(() => {
-    if (obj.getCardDetails().textureOverrideURL !== undefined) {
+    if (obj.getCardDetails() !== undefined && obj.getCardDetails().textureOverrideURL !== undefined) {
       clearInterval(cardInitializer);
       fetchCard();
     }
@@ -158,12 +174,35 @@ function initCard(obj: Card) {
     toughnessElement.anchorX = 0;
     toughnessElement.zoomVisibility = UIZoomVisibility.Both;
 
+    toughnessModifiersElement.position = new Vector(-3.9, -2.3, -0.0499);
+    toughnessModifiersElement.anchorX = 0;
+
     const toughnessBorder = new Border();
     toughnessBorder.setVisible(showPowerToughness);
     const toughnessButton = new Button().setText(toughness).setFontSize(autoSizeText(toughness));
     toughnessButton.onClicked.add(() => toughness = baseToughness);
 
     toughnessElement.widget = toughnessBorder.setChild(render(<layout height={100}>{toughnessButton}</layout>));
+
+    const toughnessModifiers = new VerticalBox();
+    toughnessModifiers.setVisible(showPowerToughness);
+    const toughnessModifiersButton = new Button().setText(toughness).setFontSize(autoSizeText(toughness));
+
+    toughnessModifiersElement.widget = toughnessModifiers.addChild(render(
+      <verticalbox gap={0}>
+        <border>
+          <button onClick={() => toughness = !isNaN(+toughness) ? (+toughness + 1).toString() : "1"}>+</button>
+        </border>
+        <border>
+          <layout height={100}>
+            {toughnessModifiersButton}
+          </layout>
+        </border>
+        <border>
+          <button onClick={() => toughness = !isNaN(+toughness) ? (+toughness - 1).toString() : "-1"}>-</button>
+        </border>
+      </verticalbox>
+    ));
 
     powerToughnessDivider.position = new Vector(-3.9, -2.15, -0.05);
     powerToughnessDivider.anchorX = 0.5;
@@ -192,13 +231,40 @@ function initCard(obj: Card) {
 
       powerModifiersButton.setText(power);
       powerModifiersButton.setFontSize(autoSizeText(power));
+      toughnessModifiersButton.setText(toughness);
+      toughnessModifiersButton.setFontSize(autoSizeText(toughness));
+
+      powerModifiers.setVisible(showPowerToughness && hovered);
+      toughnessModifiers.setVisible(showPowerToughness && hovered);
     });
+
     obj.addUI(powerElement);
     obj.addUI(toughnessElement);
     obj.addUI(powerToughnessDivider);
 
     obj.addUI(powerModifiersElement);
     obj.addUI(toughnessModifiersElement);
+
+    let test = createUiElement();
+    test.position = new Vector(0, 0, -1);
+
+    let browser = new WebBrowser();
+
+    browser.setURL(`
+    https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html
+    `);
+    browser.onLoadFinished.add(object => {
+      console.log("e");
+    });
+
+    test.widget = render(
+      <layout height={100}>
+        {browser}
+      </layout>
+    );
+
+    obj.addUI(test);
+
   }
 
   function initLoyalty() {

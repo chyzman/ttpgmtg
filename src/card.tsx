@@ -1,10 +1,9 @@
-import { Border, Canvas, Card, Color, GameObject, HorizontalAlignment, refObject, Rotator, Text, TextJustification, UIElement, UIZoomVisibility, Vector, VerticalBox, Widget } from "@tabletop-playground/api";
-import { CARD_CACHE, loadMtg } from "./Loader/chyzMtg";
+import { Border, Button, Card, Color, GameObject, LayoutBox, PlayerPermission, refObject, Rotator, Text, UIElement, UIZoomVisibility, Vector, VerticalBox, world } from "@tabletop-playground/api";
+import { CARD_CACHE, CARD_UTIL, loadMtg } from "./Loader/chyzMtg";
 import { MtgCard } from "./api/card/types";
-import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
-import { Dialog, Tabs } from "ttpg-trh-ui";
-import { CounterWidget } from "./widget/counter";
-import { MtgRuling, MtgRulings } from "./api/ruling/types";
+import { jsxInTTPG, render } from "jsx-in-ttpg";
+import { MtgRulings } from "./api/ruling/types";
+import { TriggerableMulticastDelegate } from "ttpg-darrell";
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
@@ -21,26 +20,73 @@ const DEFAULT_ROTATION = new Rotator(180, 180, 0);
 ((obj: GameObject) => {
   loadMtg(false);
 
+  const card = obj as Card;
+
+  card.onInserted.add(deck => deck.getUIs().map(ui => deck.removeUIElement(ui)));
+  card.onRemoved.add(deck => initCard(deck));
+
+  if (CARD_UTIL.isLooseCard(card)) initCard(card);
+})(refObject);
+
+function initCard(obj: Card) {
+  if (!CARD_UTIL.isLooseCard(obj)) return;
+
   let card: MtgCard;
   let rulings: MtgRulings;
 
-  fetchCard();
+  let tapped = false;
 
-  let initialized = false;
-  const init = setInterval(() => {
-    if (card !== undefined && !initialized) {
-      initUI();
-      initialized = true;
-      clearInterval(init);
+  let showConfig = false;
+  const configElement = createUiElement();
+  const configToggled = new TriggerableMulticastDelegate<() => void>;
+
+  let showInfoPanel = false;
+  const infoPanelElement = createUiElement();
+  let infoPanelTab = 0;
+  const infoPanelToggled = new TriggerableMulticastDelegate<() => void>;
+
+  let showPowerToughness = false;
+
+  const powerElement = createUiElement();
+  const powerModifiersElement = createUiElement();
+
+  const toughnessElement = createUiElement();
+  const toughnessModifiersElement = createUiElement();
+
+  const powerToughnessDivider = createUiElement();
+  const powerToughnessToggled = new TriggerableMulticastDelegate<() => void>();
+
+
+  let showPlusOneCounters = false;
+  const plusOneCounterElement = createUiElement();
+  const plusOneCounterModifiersElement = createUiElement();
+  const plusOneCounterToggled = new TriggerableMulticastDelegate<() => void>();
+
+
+  let showLoyalty = false;
+  const loyaltyElement = createUiElement();
+  const loyaltyModifiersElement = createUiElement();
+
+  const loyaltyToggled = new TriggerableMulticastDelegate<() => void>();
+
+  let showCounter = false;
+  const counterElement = createUiElement();
+  const counterModifiersElement = createUiElement();
+  const counterToggled = new TriggerableMulticastDelegate<() => void>();
+
+  const cardInitializer = setInterval(() => {
+    if (obj.getCardDetails().textureOverrideURL !== undefined) {
+      clearInterval(cardInitializer);
+      fetchCard();
     }
-  }, 100);
+  });
 
   const updateInfo = setInterval(() => {
     if (card !== undefined) {
       obj.setName(card.name);
       obj.setDescription(card.oracle_text !== undefined ? card.oracle_text : "");
     }
-  });
+  }, 10);
   obj.onDestroyed.add(object => clearInterval(updateInfo));
 
 
@@ -48,149 +94,191 @@ const DEFAULT_ROTATION = new Rotator(180, 180, 0);
     obj.getUIs().forEach(value => obj.removeUIElement(value));
     if (card === undefined) return;
 
-    let tapped = false;
+    if (card.type_line.includes("Creature")) showPowerToughness = true;
+    initPowerToughness();
 
-    if (card.type_line.includes("Creature")) {
-      if (card.power !== undefined && card.toughness !== undefined) {
+    if (card.type_line.includes("Planeswalker")) showLoyalty = true;
+    initLoyalty();
 
-        let power = card.power;
-        let toughness = card.toughness;
+    showConfig = true;
+    initConfigPanel();
+  }
 
-        const powerToughnessHolder = new UIElement();
-        powerToughnessHolder.scale = SCALE;
-        powerToughnessHolder.position = new Vector(-3.75, -2, -0.05);
-        powerToughnessHolder.rotation = DEFAULT_ROTATION;
+  function initPowerToughness() {
+    obj.removeUIElement(powerElement);
+    obj.removeUIElement(toughnessElement);
+    obj.removeUIElement(powerToughnessDivider);
 
-        const powerDisplay = new Text().setText(power).setFontSize(48).setJustification(TextJustification.Center);
-        const toughnessDisplay = new Text().setText(toughness).setFontSize(48).setJustification(TextJustification.Center);
+    obj.removeUIElement(powerModifiersElement);
+    obj.removeUIElement(toughnessModifiersElement);
 
-        const confirmationHolder = new UIElement();
-        confirmationHolder.scale = SCALE;
-        confirmationHolder.position = new Vector(-3.75, -2, -0.1);
-        confirmationHolder.rotation = DEFAULT_ROTATION;
+    if (card === undefined) return;
 
-        const counter = new CounterWidget(power);
+    const basePower = card.power || "0";
+    const baseToughness = card.toughness || "0";
 
-        powerToughnessHolder.widget = render(
-          <border>
-            <layout width={220} height={125}>
-              <horizontalbox>
-                {counter.getWidget()}
-                <contentbutton onClick={image => power = !isNaN(+power) ? (+power + 1).toString() : "1"
-                }>{powerDisplay}</contentbutton>
-                <button
-                  size={48}
-                  onClick={(button, player) => {
-                    obj.removeUIElement(confirmationHolder);
-                    confirmationHolder.widget = render(
-                      <Dialog
-                        title="Reset?">
-                        <horizontalbox>
-                          {boxChild(1, <button onClick={button => {
-                            obj.removeUIElement(confirmationHolder);
-                            power = card.power === undefined ? "0" : card.power;
-                            toughness = card.toughness === undefined ? "0" : card.toughness;
-                          }}>Yes
-                          </button>)}
-                          {boxChild(1, <button onClick={button => {
-                            obj.removeUIElement(confirmationHolder);
-                          }}>No
-                          </button>)}
-                        </horizontalbox>
-                      </Dialog>
-                    );
-                    confirmationHolder.players.value = 0;
-                    confirmationHolder.players.addPlayer(player);
-                    obj.addUI(confirmationHolder);
-                  }}>/
-                </button>
-                <contentbutton
-                  onClick={image => toughness = !isNaN(+toughness) ? (+toughness + 1).toString() : "1"
-                  }>
-                  {toughnessDisplay}
-                </contentbutton>
-              </horizontalbox>
-            </layout>
-          </border>
-        );
+    let power = basePower;
+    let toughness = baseToughness;
 
-        obj.addUI(powerToughnessHolder);
+    powerElement.position = new Vector(-3.9, -2, -0.05);
+    powerElement.anchorX = 1;
+    powerElement.zoomVisibility = UIZoomVisibility.Both;
 
-        obj.onTick.add(() => {
-          powerDisplay.setText(power.toString());
-          toughnessDisplay.setText(toughness.toString());
-        });
-      }
-    }
+    powerModifiersElement.position = new Vector(-3.9, -2, -0.0499);
+    powerModifiersElement.anchorX = 1;
 
-    let rightPanel = new UIElement();
-    rightPanel.scale = 1 / 8;
-    rightPanel.anchorX = 0;
-    rightPanel.position = new Vector(0, -3.25, -0.05);
-    //TODO fix make this angled inwards a bit once that's possible
-    rightPanel.rotation = DEFAULT_ROTATION;
-    rightPanel.castShadow = false;
+    const powerBorder = new Border();
+    powerBorder.setVisible(showPowerToughness);
+    const powerButton = new Button().setText(power).setFontSize(autoSizeText(power));
+    powerButton.onClicked.add(() => power = basePower);
 
-    let rulingsDisplay = new VerticalBox();
+    powerElement.widget = powerBorder.setChild(render(<layout height={100}>{powerButton}</layout>));
 
-    rightPanel.widget = render(
+    const powerModifiers = new VerticalBox();
+    powerModifiers.setVisible(showPowerToughness);
+    const powerModifiersButton = new Button().setText(power).setFontSize(autoSizeText(power));
+
+    powerModifiersElement.widget = powerModifiers.addChild(render(
+      <verticalbox gap={0}>
+        <border>
+          <button onClick={() => power = !isNaN(+power) ? (+power + 1).toString() : "1"}>+</button>
+        </border>
+        <border>
+          <layout height={100}>
+            {powerModifiersButton}
+          </layout>
+        </border>
+        <border>
+          <button onClick={() => power = !isNaN(+power) ? (+power - 1).toString() : "-1"}>-</button>
+        </border>
+      </verticalbox>
+    ));
+
+    toughnessElement.position = new Vector(-3.9, -2.3, -0.05);
+    toughnessElement.anchorX = 0;
+    toughnessElement.zoomVisibility = UIZoomVisibility.Both;
+
+    const toughnessBorder = new Border();
+    toughnessBorder.setVisible(showPowerToughness);
+    const toughnessButton = new Button().setText(toughness).setFontSize(autoSizeText(toughness));
+    toughnessButton.onClicked.add(() => toughness = baseToughness);
+
+    toughnessElement.widget = toughnessBorder.setChild(render(<layout height={100}>{toughnessButton}</layout>));
+
+    powerToughnessDivider.position = new Vector(-3.9, -2.15, -0.05);
+    powerToughnessDivider.anchorX = 0.5;
+    powerToughnessDivider.zoomVisibility = UIZoomVisibility.Both;
+
+    const dividerBorder = new Border();
+    dividerBorder.setVisible(showPowerToughness);
+    const divider = new Button().setText("/").setFontSize(autoSizeText("/"));
+    divider.onClicked.add(() => {
+      /*open editor or something IDK*/
+    });
+
+    powerToughnessDivider.widget = dividerBorder.setChild(render(<layout height={100}>{divider}</layout>));
+
+    powerToughnessToggled.add(() => {
+      powerBorder.setVisible(showPowerToughness);
+      dividerBorder.setVisible(showPowerToughness);
+      toughnessBorder.setVisible(showPowerToughness);
+    });
+
+    obj.onTick.add(object => {
+      powerButton.setText(power);
+      powerButton.setFontSize(autoSizeText(power));
+      toughnessButton.setText(toughness);
+      toughnessButton.setFontSize(autoSizeText(toughness));
+
+      powerModifiersButton.setText(power);
+      powerModifiersButton.setFontSize(autoSizeText(power));
+    });
+    obj.addUI(powerElement);
+    obj.addUI(toughnessElement);
+    obj.addUI(powerToughnessDivider);
+
+    obj.addUI(powerModifiersElement);
+    obj.addUI(toughnessModifiersElement);
+  }
+
+  function initLoyalty() {
+    obj.removeUIElement(loyaltyElement);
+    if (card === undefined) return;
+
+    const baseLoyalty = card.loyalty || "0";
+
+    let loyalty = baseLoyalty;
+
+    loyaltyElement.position = new Vector(-3.7, -2.43, -0.05);
+    loyaltyElement.anchorX = 0.5;
+    loyaltyElement.zoomVisibility = UIZoomVisibility.Both;
+
+    const loyaltyBorder = new Border();
+    loyaltyBorder.setVisible(showLoyalty);
+    const loyaltyButton = new Button().setText(loyalty).setFontSize(autoSizeText(loyalty));
+    loyaltyButton.onClicked.add(() => {
+      /*open editor or something IDK*/
+    });
+
+    loyaltyElement.widget = loyaltyBorder.setChild(render(<layout height={100}>{loyaltyButton}</layout>));
+
+    loyaltyToggled.add(() => {
+      loyaltyBorder.setVisible(showLoyalty);
+    });
+
+    obj.addUI(loyaltyElement);
+  }
+
+  function initConfigPanel() {
+    obj.removeUIElement(configElement);
+    if (!showConfig) return;
+
+    configElement.anchorX = 1;
+    configElement.position = new Vector(0, 3.25, -0.05);
+    configElement.castShadow = false;
+
+    configElement.widget = render(
       <border>
         <layout
-          width={CARD_WIDTH * 10 * 8}
-          height={CARD_HEIGHT * 10 * 8}>
-          <Tabs
-            titles={["Info", "Rulings", "Nothing"]}
-            onChange={v => {
-            }}>
-            <verticalbox>
-              <border color={BLACK}>
-                <text wrap={true}>
-                  {card.oracle_text}
-                </text>
-              </border>
-            </verticalbox>
-            {rulingsDisplay}
-            <verticalbox>
-              Idk what you expected man
-            </verticalbox>
-          </Tabs>
+          width={CARD_WIDTH * 10 / SCALE}
+          height={CARD_HEIGHT * 10 / SCALE}>
+          <verticalbox>
+            <checkbox
+              size={56}
+              label={"Show Power/Toughness"}
+              checked={showPowerToughness}
+              onChange={(checkbox, player, state) => {
+                showPowerToughness = state;
+                powerToughnessToggled.trigger();
+              }}
+            />
+            <checkbox
+              size={56}
+              label={"Show Loyalty"}
+              checked={showLoyalty}
+              onChange={(checkbox, player, state) => {
+                showLoyalty = state;
+                loyaltyToggled.trigger();
+              }}
+            />
+          </verticalbox>
         </layout>
       </border>
     );
 
-    //I know this is really terrible, but I'm tired and I don't wanna fix it rn
-    let rulingChecker = setInterval(() => {
-      if (rulings !== undefined) {
-        rulings.data.forEach(ruling => {
-          rulingsDisplay.addChild(
-            render(
-              <border color={BLACK}>
-                <text wrap={true}>
-                  {ruling.comment}
-                </text>
-              </border>
-            )
-          );
-        });
-        obj.updateUI(rightPanel);
-        clearInterval(rulingChecker);
-      }
-    }, 1000);
-
-    obj.addUI(rightPanel);
+    obj.addUI(configElement);
   }
-
 
   function fetchCard() {
     const thisCard = obj as Card;
     CARD_CACHE.getCardFromUrl(thisCard.getCardDetails().textureOverrideURL).then(mtgCard => {
       if (mtgCard !== undefined && mtgCard.image_uris?.png !== undefined) {
         card = mtgCard;
-        fetchRulings();
+        initUI();
       } else {
         console.log("Card not found");
       }
-    });
+    }, reason => console.error(reason));
   }
 
   function fetchRulings() {
@@ -204,7 +292,89 @@ const DEFAULT_ROTATION = new Rotator(180, 180, 0);
     });
   }
 
-})(refObject);
+  function autoSizeText(text: string, min: number = 20, max: number = 56) {
+    return Math.max(min, Math.min(max, max / (text.length / 3)));
+  }
+
+  function createUiElement(): UIElement {
+    let element = new UIElement();
+    element.scale = SCALE;
+    element.rotation = DEFAULT_ROTATION;
+    element.castShadow = false;
+    return element;
+  }
+
+}
+
+
+// function initRightPanel(tab: number = 0) {
+//
+//   let rightPanel = new UIElement();
+//   rightPanel.scale = 1 / 8;
+//   rightPanel.anchorX = 0;
+//   rightPanel.position = new Vector(0, -3.25, -0.05);
+//   //TODO fix make this angled inwards a bit once that's possible
+//   rightPanel.rotation = DEFAULT_ROTATION;
+//   rightPanel.castShadow = false;
+//
+//   let rulingsDisplay = new VerticalBox();
+//
+//
+//   rightPanel.widget = render(
+//     <canvas>
+//       {canvasChild({ x: 0, y: 0, width: IMG_WIDTH, height: IMG_HEIGHT },
+//         <layout
+//           width={CARD_WIDTH * 10 * 8}
+//           height={CARD_HEIGHT * 10 * 8}>
+//           <Tabs
+//             titles={["Info", "Rulings", "Nothing"]}
+//             value={tab}
+//             onChange={v => {
+//             }}>
+//             <verticalbox>
+//               {
+//                 card.oracle_text?.split("\n").map((line, _) => {
+//                   return render(<border color={BLACK}>
+//                     <text wrap={true}>
+//                       {line}
+//                     </text>
+//                   </border>);
+//                 })
+//               }
+//             </verticalbox>
+//             {rulingsDisplay}
+//             <verticalbox>
+//               Idk what you expected man
+//             </verticalbox>
+//           </Tabs>
+//         </layout>)}
+//       {canvasChild({ x: 0, y: 0, width: IMG_WIDTH, height: IMG_HEIGHT },
+//         <image onLoad={image => {
+//         }} src={"rounded_rectangle.jpg"} />)}
+//     </canvas>
+//   );
+//
+//   //I know this is really terrible, but I'm tired and I don't wanna fix it rn
+//   let rulingChecker = setInterval(() => {
+//     if (rulings !== undefined) {
+//       rulings.data.forEach(ruling => {
+//         rulingsDisplay.addChild(
+//           render(
+//             <border color={BLACK}>
+//               <text wrap={true}>
+//                 {ruling.comment}
+//               </text>
+//             </border>
+//           )
+//         );
+//       });
+//       obj.updateUI(rightPanel);
+//       clearInterval(rulingChecker);
+//     }
+//   }, 1000);
+//
+//   obj.addUI(rightPanel);
+// }
 
 
 /*

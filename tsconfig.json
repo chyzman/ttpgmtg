@@ -3,8 +3,8 @@
       "rootDir": "./src",
 
       // Enable latest features
-      "lib": ["ESNext", "DOM"],
-      "target": "ESNext",
+      "lib": ["es2023", "DOM"],
+      "target": "es2023",
       "esModuleInterop": true,
       "module": "CommonJS",
       "moduleDetection": "force",

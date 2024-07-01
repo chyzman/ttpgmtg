@@ -1,4 +1,4 @@
-export type CardIdentifier =
+export type MtgCardIdentifier =
   | MtgCardIdentifierId
   | MtgCardIdentifierIllustrationId
   | MtgCardIdentifierMtgoId

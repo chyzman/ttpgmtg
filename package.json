@@ -18,7 +18,7 @@
     "i": "^0.3.7",
     "jsx-in-ttpg": "^2.2.3",
     "npm": "^10.8.1",
-    "ttpg-darrell": "^1.0.51",
+    "ttpg-darrell": "^1.0.52",
     "ttpg-trh-ui": "^2.0.0"
   },
   "devDependencies": {

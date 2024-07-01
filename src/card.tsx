@@ -251,7 +251,7 @@ function initCard(obj: Card) {
     let browser = new WebBrowser();
 
     browser.setURL(`
-    https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html
+    https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html?value=${power}
     `);
     browser.onLoadFinished.add(object => {
       console.log("e");

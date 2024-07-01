@@ -26,7 +26,7 @@
 
 <script type="text/javascript">
   //get the number from the url
-  let num = parseInt(new URLSearchParams(window.location.search).get('num')) || 0;
+  let num = parseInt(new URLSearchParams(window.location.search).get('value')) || 0;
   let isEditing = false;
 
   document.getElementById("counter").innerHTML = num;
@@ -48,8 +48,7 @@
   });
 
   function increment(amount) {
-    num += amount;
-    document.getElementById("counter").innerText = num;
+    setNum(num + amount);
   }
 
   function editNumber() {
@@ -59,8 +58,7 @@
 
     // Save changes when focus is lost (blur event)
     counterButton.addEventListener('blur', () => {
-      num = parseInt(counterButton.innerText) || 0; // Parse text to integer, default to 0 if invalid
-      counterButton.innerText = num;
+      setNum(parseInt(counterButton.innerText) || 0);
       window.history.pushState("object or string", "Title", "/counter.html?num=" + num);
       isEditing = false;
       counterButton.contentEditable = false; // Disable editing mode

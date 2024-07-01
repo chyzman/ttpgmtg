@@ -8,10 +8,16 @@
   <!-- button should never wrap -->
   <style>
       div {
+          -ms-overflow-style: none; /* for Internet Explorer, Edge */
+          scrollbar-width: none; /* for Firefox */
           white-space: nowrap;
           overflow: hidden;
           display: block;
       }
+      div::-webkit-scrollbar {
+          display: none; /* for Chrome, Safari, and Opera */
+      }
+
       body {
           margin: 0;
           display: flex;
@@ -51,7 +57,7 @@
   });
 
   function increment(amount) {
-    setNum(!isNaN(+num) ? (+num * 2).toString() : amount);
+    setNum(!isNaN(+num) ? (+num + amount).toString() : amount);
   }
 
   function setNum(newNum) {

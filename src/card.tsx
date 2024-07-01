@@ -249,7 +249,7 @@ function initCard(obj: Card) {
     test.position = new Vector(0, 0, -1);
 
     let browser = new WebBrowser();
-    let browserLayout = new LayoutBox().setOverrideHeight(100);
+    let browserLayout = new LayoutBox().setOverrideHeight(75);
 
     browser.setURL(`
     https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html#${JSON.stringify({ value: power })}
@@ -258,7 +258,7 @@ function initCard(obj: Card) {
       if (browse.getURL().lastIndexOf("#") !== -1) {
         let data = JSON.parse(decodeURI(browse.getURL().slice(browse.getURL().lastIndexOf("#") + 1)));
         power = data.value;
-        browserLayout.setOverrideWidth(Math.max(100,data.width));
+        browserLayout.setMinimumWidth(Math.max(10,data.width));
       }
     });
 

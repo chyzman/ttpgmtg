@@ -249,17 +249,20 @@ function initCard(obj: Card) {
     test.position = new Vector(0, 0, -1);
 
     let browser = new WebBrowser();
+    let browserLayout = new LayoutBox();
 
     browser.setURL(`
-    https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html#${power}
+    https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html#${JSON.stringify({ value: power })}
     `);
     browser.onLoadFinished.add(browse => {
-      let data = JSON.parse(browse.getURL().split("#")[1]);
-      power = data.value;
-
+      if (browse.getURL().lastIndexOf("#") !== -1) {
+        let data = JSON.parse(decodeURI(browse.getURL().slice(browse.getURL().lastIndexOf("#") + 1)));
+        power = data.value;
+        browserLayout.setOverrideWidth(Math.min(100,data.width));
+      }
     });
 
-    test.widget = browser;
+    test.widget = browserLayout.setChild(browser)
 
     obj.addUI(test);
 

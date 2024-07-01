@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <title>Counter</title>
-  <!--      button width should be just enough for the text -->
+  <!-- button should never wrap -->
   <style>
       body {
           margin: 0;
@@ -13,6 +13,8 @@
           justify-content: center;
           align-items: center;
           height: 100vh;
+          white-space: nowrap;
+          overflow-x: hidden;
       }
       button {
           font-size: 2rem;
@@ -21,6 +23,8 @@
           border-radius: 5px;
           background-color: #fff;
           cursor: pointer;
+          white-space: nowrap;
+          overflow-x: hidden;
       }
   </style>
 </head>

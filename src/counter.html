@@ -33,13 +33,27 @@
           padding: 0.5rem 1rem;
           border: none;
           border-radius: 0px;
-          background-color: #1E1E1D;
+          background-color: black;
           cursor: pointer;
       }
 
       button:hover {
-          background-color: #ffff00;
-          color: black;
+          animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+          0% {
+              color: white;
+              background-color: black;
+          }
+          50% {
+              color: black;
+              background-color: #ffff00;
+          }
+          100% {
+              color: white;
+              background-color: black;
+          }
       }
   </style>
 </head>

@@ -250,7 +250,7 @@ function initCard(obj: Card) {
     test.anchorX = 0;
 
     let browser = new WebBrowser();
-    let browserLayout = new LayoutBox().setOverrideHeight(75);
+    let browserLayout = new LayoutBox().setOverrideHeight(55);
 
     browser.setURL(`
     https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html#${JSON.stringify({ value: power })}

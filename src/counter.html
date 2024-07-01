@@ -51,7 +51,7 @@
   });
 
   function increment(amount) {
-    setNum(num + amount);
+    setNum(!isNaN(+num) ? (+num + amount).toString() : amount);
   }
 
   function setNum(newNum) {

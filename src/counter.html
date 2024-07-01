@@ -59,7 +59,7 @@
   });
 
   function increment(amount) {
-    setNum(BigInt(num) !== undefined ? (BigInt(num) * 2).toString() : amount);
+    setNum(BigInt(num) !== undefined ? (BigInt(num) * BigInt(2)).toString() : amount);
   }
 
   function setNum(newNum) {

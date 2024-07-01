@@ -24,6 +24,10 @@
           justify-content: start;
           align-items: start;
           height: 100vh;
+          background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, indigo, violet);
+          background-size: 10000% 10000%;
+
+          animation: bg-gradient 60s infinite;
       }
 
       button {
@@ -38,22 +42,15 @@
       }
 
       button:hover {
-          animation: pulse 2s infinite;
+          margin: 0.1rem 0.1rem;
+          padding: 0.4rem 0.9rem;
+          background-color: darkgray;
       }
 
-      @keyframes pulse {
-          0% {
-              color: white;
-              background-color: black;
-          }
-          50% {
-              color: black;
-              background-color: #ffff00;
-          }
-          100% {
-              color: white;
-              background-color: black;
-          }
+      @keyframes bg-gradient {
+          0%{background-position:0% 50%}
+          50%{background-position:100% 50%}
+          100%{background-position:0% 50%}
       }
   </style>
 </head>

@@ -259,7 +259,7 @@ function initCard(obj: Card) {
       if (browse.getURL().lastIndexOf("#") !== -1) {
         let data = JSON.parse(decodeURI(browse.getURL().slice(browse.getURL().lastIndexOf("#") + 1)));
         power = data.value;
-        browserLayout.setMinimumWidth(Math.max(1,data.width));
+        browserLayout.setMinimumWidth(Math.max(1,data.width+8));
       }
     });
 

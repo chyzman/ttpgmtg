@@ -25,7 +25,7 @@
           align-items: start;
           height: 100vh;
           background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, indigo, violet);
-          background-size: 10000% 10000%;
+          background-size: 500% 10000%;
 
           animation: bg-gradient 60s infinite;
       }
@@ -68,7 +68,7 @@
     e.preventDefault();
     let multiplier = e.shiftKey ? 10 : 1;
     multiplier *= e.ctrlKey ? 100 : 1;
-    increment(-multiplier * Math.sign(e.deltaY));
+    increment(-multiplier + Math.sign(e.deltaY));
   }, {
     passive: false
   });

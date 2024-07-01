@@ -7,14 +7,17 @@
   <title>Counter</title>
   <!-- button should never wrap -->
   <style>
+      div {
+          white-space: nowrap;
+          overflow: hidden;
+          display: block;
+      }
       body {
           margin: 0;
           display: flex;
           justify-content: center;
           align-items: center;
           height: 100vh;
-          white-space: nowrap;
-          overflow-x: hidden;
       }
       button {
           font-size: 2rem;
@@ -23,8 +26,6 @@
           border-radius: 5px;
           background-color: #fff;
           cursor: pointer;
-          white-space: nowrap;
-          overflow-x: hidden;
       }
   </style>
 </head>

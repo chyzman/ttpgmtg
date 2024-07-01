@@ -247,6 +247,7 @@ function initCard(obj: Card) {
 
     let test = createUiElement();
     test.position = new Vector(0, 0, -1);
+    test.anchorX = 0;
 
     let browser = new WebBrowser();
     let browserLayout = new LayoutBox().setOverrideHeight(75);
@@ -262,7 +263,7 @@ function initCard(obj: Card) {
       }
     });
 
-    test.widget = browserLayout.setChild(browser)
+    test.widget = browserLayout.setChild(browser);
 
     obj.addUI(test);
 

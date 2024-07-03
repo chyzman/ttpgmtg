@@ -20,6 +20,7 @@ export class Counter {
   private _onValueChange = new TriggerableMulticastDelegate<((newValue: string | number) => void)>();
 
   private _visible = true;
+  private _attached = false;
 
   private _element = new UIElement();
   private _displayElement = new UIElement();
@@ -101,15 +102,17 @@ export class Counter {
   public attach(obj: GameObject) {
     obj.addUI(this._element);
     obj.addUI(this._displayElement);
+    this._attached = true;
   }
 
   public detach(obj: GameObject) {
     obj.removeUIElement(this._element);
     obj.removeUIElement(this._displayElement);
+    this._attached = false;
   }
 
   public setAttached(obj: GameObject, attached: boolean = true) {
-    if (obj.getUIs().includes(this._element) == attached) return;
+    if (attached === this._attached) return;
     if (attached) this.attach(obj);
     else this.detach(obj);
   }

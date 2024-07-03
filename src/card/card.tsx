@@ -1,9 +1,9 @@
-import { Border, Button, Card, Color, GameObject, LayoutBox, PlayerPermission, refObject, Rotator, Text, UIElement, UIZoomVisibility, Vector, VerticalBox, WebBrowser, world } from "@tabletop-playground/api";
-import { CARD_CACHE, CARD_UTIL, loadMtg } from "./Loader/chyzMtg";
-import { MtgCard } from "./api/card/types";
-import { jsxInTTPG, render } from "jsx-in-ttpg";
-import { MtgRulings } from "./api/ruling/types";
-import { TriggerableMulticastDelegate, UiVisibility } from "ttpg-darrell";
+import { Border, Button, Card, Color, GameObject, HorizontalAlignment, PlayerPermission, refObject, Rotator, TextJustification, UIElement, UIZoomVisibility, Vector, VerticalBox, world } from "@tabletop-playground/api";
+import { CARD_CACHE, CARD_UTIL, loadMtg } from "../Loader/chyzMtg";
+import { MtgCard, MtgRulings } from "../api";
+import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
+import { TriggerableMulticastDelegate } from "ttpg-darrell";
+import { Counter, UI_SCALE, DEFAULT_ROTATION, autoSizeText } from "./types";
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
@@ -11,11 +11,7 @@ const IMG_HEIGHT = 936;
 const CARD_WIDTH = 6.383;
 const CARD_HEIGHT = 8.898;
 
-const SCALE = 1 / 16;
-
 const BLACK: Color = new Color(0, 0, 0, 1);
-
-const DEFAULT_ROTATION = new Rotator(180, 180, 0);
 
 ((obj: GameObject) => {
   loadMtg(false);
@@ -47,14 +43,8 @@ function initCard(obj: Card) {
 
   let showPowerToughness = false;
 
-  const powerElement = createUiElement();
-  const powerModifiersElement = createUiElement();
-
-  const toughnessElement = createUiElement();
-  const toughnessModifiersElement = createUiElement();
-
-  const powerToughnessDivider = createUiElement();
-  const powerToughnessToggled = new TriggerableMulticastDelegate<() => void>();
+  const power = new Counter();
+  const toughness = new Counter();
 
 
   let showPlusOneCounters = false;
@@ -64,10 +54,8 @@ function initCard(obj: Card) {
 
 
   let showLoyalty = false;
-  const loyaltyElement = createUiElement();
-  const loyaltyModifiersElement = createUiElement();
 
-  const loyaltyToggled = new TriggerableMulticastDelegate<() => void>();
+  const loyalty = new Counter();
 
   let showCounter = false;
   const counterElement = createUiElement();
@@ -77,7 +65,6 @@ function initCard(obj: Card) {
   let hovered = false;
 
   const hoverChecker = setInterval(() => {
-    const permission = new PlayerPermission();
     const scale = obj.getScale();
     const extent = obj.getExtent(false, true);
     extent.x /= scale.x;
@@ -121,180 +108,47 @@ function initCard(obj: Card) {
   }
 
   function initPowerToughness() {
-    obj.removeUIElement(powerElement);
-    obj.removeUIElement(toughnessElement);
-    obj.removeUIElement(powerToughnessDivider);
+    // power.detach(obj);
+    // toughness.detach(obj);
+    // if (card === undefined) return;
 
-    obj.removeUIElement(powerModifiersElement);
-    obj.removeUIElement(toughnessModifiersElement);
+    power.value = card.power;
+    toughness.value = card.toughness;
 
-    if (card === undefined) return;
+    power.position = new Vector(-3.9, -2, -0.05);
+    power.anchorX = 1;
 
-    const basePower = card.power || "0";
-    const baseToughness = card.toughness || "0";
+    toughness.position = new Vector(-3.9, -2.3, -0.05);
+    toughness.anchorX = 0;
 
-    let power = basePower;
-    let toughness = baseToughness;
-
-    powerElement.position = new Vector(-3.9, -2, -0.05);
-    powerElement.anchorX = 1;
-    powerElement.zoomVisibility = UIZoomVisibility.Both;
-
-    powerModifiersElement.position = new Vector(-3.9, -2, -0.0499);
-    powerModifiersElement.anchorX = 1;
-
-    const powerBorder = new Border();
-    powerBorder.setVisible(showPowerToughness);
-    const powerButton = new Button().setText(power).setFontSize(autoSizeText(power));
-    powerButton.onClicked.add(() => power = basePower);
-
-    powerElement.widget = powerBorder.setChild(render(<layout height={100}>{powerButton}</layout>));
-
-    const powerModifiers = new VerticalBox();
-    powerModifiers.setVisible(showPowerToughness);
-    const powerModifiersButton = new Button().setText(power).setFontSize(autoSizeText(power));
-
-    powerModifiersElement.widget = powerModifiers.addChild(render(
-      <verticalbox gap={0}>
-        <border>
-          <button onClick={() => power = !isNaN(+power) ? (+power + 1).toString() : "1"}>+</button>
-        </border>
-        <border>
-          <layout height={100}>
-            {powerModifiersButton}
-          </layout>
-        </border>
-        <border>
-          <button onClick={() => power = !isNaN(+power) ? (+power - 1).toString() : "-1"}>-</button>
-        </border>
-      </verticalbox>
-    ));
-
-    toughnessElement.position = new Vector(-3.9, -2.3, -0.05);
-    toughnessElement.anchorX = 0;
-    toughnessElement.zoomVisibility = UIZoomVisibility.Both;
-
-    toughnessModifiersElement.position = new Vector(-3.9, -2.3, -0.0499);
-    toughnessModifiersElement.anchorX = 0;
-
-    const toughnessBorder = new Border();
-    toughnessBorder.setVisible(showPowerToughness);
-    const toughnessButton = new Button().setText(toughness).setFontSize(autoSizeText(toughness));
-    toughnessButton.onClicked.add(() => toughness = baseToughness);
-
-    toughnessElement.widget = toughnessBorder.setChild(render(<layout height={100}>{toughnessButton}</layout>));
-
-    const toughnessModifiers = new VerticalBox();
-    toughnessModifiers.setVisible(showPowerToughness);
-    const toughnessModifiersButton = new Button().setText(toughness).setFontSize(autoSizeText(toughness));
-
-    toughnessModifiersElement.widget = toughnessModifiers.addChild(render(
-      <verticalbox gap={0}>
-        <border>
-          <button onClick={() => toughness = !isNaN(+toughness) ? (+toughness + 1).toString() : "1"}>+</button>
-        </border>
-        <border>
-          <layout height={100}>
-            {toughnessModifiersButton}
-          </layout>
-        </border>
-        <border>
-          <button onClick={() => toughness = !isNaN(+toughness) ? (+toughness - 1).toString() : "-1"}>-</button>
-        </border>
-      </verticalbox>
-    ));
-
-    powerToughnessDivider.position = new Vector(-3.9, -2.15, -0.05);
-    powerToughnessDivider.anchorX = 0.5;
-    powerToughnessDivider.zoomVisibility = UIZoomVisibility.Both;
-
-    const dividerBorder = new Border();
-    dividerBorder.setVisible(showPowerToughness);
-    const divider = new Button().setText("/").setFontSize(autoSizeText("/"));
-    divider.onClicked.add(() => {
-      /*open editor or something IDK*/
-    });
-
-    powerToughnessDivider.widget = dividerBorder.setChild(render(<layout height={100}>{divider}</layout>));
-
-    powerToughnessToggled.add(() => {
-      powerBorder.setVisible(showPowerToughness);
-      dividerBorder.setVisible(showPowerToughness);
-      toughnessBorder.setVisible(showPowerToughness);
-    });
+    power.setAttached(obj, showPowerToughness);
+    toughness.setAttached(obj, showPowerToughness);
 
     obj.onTick.add(object => {
-      powerButton.setText(power);
-      powerButton.setFontSize(autoSizeText(power));
-      toughnessButton.setText(toughness);
-      toughnessButton.setFontSize(autoSizeText(toughness));
+      power.updateVisibility(hovered);
+      toughness.updateVisibility(hovered);
+    })
 
-      powerModifiersButton.setText(power);
-      powerModifiersButton.setFontSize(autoSizeText(power));
-      toughnessModifiersButton.setText(toughness);
-      toughnessModifiersButton.setFontSize(autoSizeText(toughness));
+    let test = new Counter(10);
 
-      powerModifiers.setVisible(showPowerToughness && hovered);
-      toughnessModifiers.setVisible(showPowerToughness && hovered);
-    });
-
-    obj.addUI(powerElement);
-    obj.addUI(toughnessElement);
-    obj.addUI(powerToughnessDivider);
-
-    obj.addUI(powerModifiersElement);
-    obj.addUI(toughnessModifiersElement);
-
-    let test = createUiElement();
     test.position = new Vector(0, 0, -1);
-    test.anchorX = 0;
 
-    let browser = new WebBrowser();
-    let browserLayout = new LayoutBox().setOverrideHeight(53);
-
-    browser.setURL(`
-    https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html#${JSON.stringify({ value: power })}
-    `);
-    browser.onLoadFinished.add(browse => {
-      if (browse.getURL().lastIndexOf("#") !== -1) {
-        let data = JSON.parse(decodeURI(browse.getURL().slice(browse.getURL().lastIndexOf("#") + 1)));
-        power = data.value;
-        browserLayout.setMinimumWidth(Math.max(1,data.width+8));
-      }
-    });
-
-    test.widget = browserLayout.setChild(browser);
-
-    obj.addUI(test);
-
+    test.attach(obj);
   }
 
   function initLoyalty() {
-    obj.removeUIElement(loyaltyElement);
-    if (card === undefined) return;
+    // loyalty.detach(obj);
+    // if (card === undefined) return;
 
-    const baseLoyalty = card.loyalty || "0";
+    loyalty.value = card.loyalty;
 
-    let loyalty = baseLoyalty;
+    loyalty.position = new Vector(-3.7, -2.43, -0.05);
 
-    loyaltyElement.position = new Vector(-3.7, -2.43, -0.05);
-    loyaltyElement.anchorX = 0.5;
-    loyaltyElement.zoomVisibility = UIZoomVisibility.Both;
+    loyalty.setAttached(obj, showLoyalty);
 
-    const loyaltyBorder = new Border();
-    loyaltyBorder.setVisible(showLoyalty);
-    const loyaltyButton = new Button().setText(loyalty).setFontSize(autoSizeText(loyalty));
-    loyaltyButton.onClicked.add(() => {
-      /*open editor or something IDK*/
-    });
-
-    loyaltyElement.widget = loyaltyBorder.setChild(render(<layout height={100}>{loyaltyButton}</layout>));
-
-    loyaltyToggled.add(() => {
-      loyaltyBorder.setVisible(showLoyalty);
-    });
-
-    obj.addUI(loyaltyElement);
+    obj.onTick.add(object => {
+      loyalty.updateVisibility(hovered);
+    })
   }
 
   function initConfigPanel() {
@@ -308,8 +162,8 @@ function initCard(obj: Card) {
     configElement.widget = render(
       <border>
         <layout
-          width={CARD_WIDTH * 10 / SCALE}
-          height={CARD_HEIGHT * 10 / SCALE}>
+          width={CARD_WIDTH * 10 / UI_SCALE}
+          height={CARD_HEIGHT * 10 / UI_SCALE}>
           <verticalbox>
             <checkbox
               size={56}
@@ -317,7 +171,8 @@ function initCard(obj: Card) {
               checked={showPowerToughness}
               onChange={(checkbox, player, state) => {
                 showPowerToughness = state;
-                powerToughnessToggled.trigger();
+                power.setAttached(obj, state);
+                toughness.setAttached(obj, state)
               }}
             />
             <checkbox
@@ -326,7 +181,7 @@ function initCard(obj: Card) {
               checked={showLoyalty}
               onChange={(checkbox, player, state) => {
                 showLoyalty = state;
-                loyaltyToggled.trigger();
+                loyalty.setAttached(obj, state);
               }}
             />
           </verticalbox>
@@ -360,13 +215,9 @@ function initCard(obj: Card) {
     });
   }
 
-  function autoSizeText(text: string, min: number = 20, max: number = 56) {
-    return Math.max(min, Math.min(max, max / (text.length / 3)));
-  }
-
   function createUiElement(): UIElement {
     let element = new UIElement();
-    element.scale = SCALE;
+    element.scale = UI_SCALE;
     element.rotation = DEFAULT_ROTATION;
     element.castShadow = false;
     return element;
@@ -523,3 +374,26 @@ const interval = setInterval(() => {
 obj.onDestroyed.add(() => clearInterval(interval));
 
  */
+
+
+// let test = createUiElement();
+// test.position = new Vector(0, 0, -1);
+// test.anchorX = 0;
+//
+// let browser = new WebBrowser();
+// let browserLayout = new LayoutBox().setOverrideHeight(53).setOverrideWidth(10);
+//
+// browser.setURL(`
+//     https://htmlpreview.github.io/?https://github.com/chyzman/ttpgmtg/blob/main/src/counter.html#${JSON.stringify({ value: power })}
+//     `);
+// browser.onURLChanged.add(browse => {
+//   if (browse.getURL().lastIndexOf("#") !== -1) {
+//     let data = JSON.parse(decodeURI(browse.getURL().slice(browse.getURL().lastIndexOf("#") + 1)));
+//     power = data.value;
+//     browserLayout.setOverrideWidth(Math.max(1,data.width+8));
+//   }
+// });
+//
+// test.widget = browserLayout.setChild(browser);
+//
+// obj.addUI(test);

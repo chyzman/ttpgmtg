@@ -42,9 +42,8 @@ export class Counter extends ChyzUIElement {
     this._element.widget = this._layout;
 
     this._displayLayout.setChild(new Border().setChild(
-      new LayoutBox().setOverrideHeight(90)
-        .setChild(new VerticalBox()
-          .addChild(this._displayValueButton))));
+      new VerticalBox()
+        .addChild(new LayoutBox().setOverrideHeight(90).setChild(this._displayValueButton))));
     this._displayElement.widget = this._displayLayout;
 
 

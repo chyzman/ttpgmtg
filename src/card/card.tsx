@@ -4,7 +4,9 @@ import { MtgCard, MtgRulings } from "../api";
 import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
 import { TriggerableMulticastDelegate } from "ttpg-darrell";
 import { autoSizeText, parseNumber } from "./types";
-import { UI_SCALE, DEFAULT_ROTATION, UI_HEIGHT, Counter } from "../ui";
+import { UI_SCALE, DEFAULT_ROTATION, UI_HEIGHT } from "../ui";
+import { Counter } from "../ui/counter";
+
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;

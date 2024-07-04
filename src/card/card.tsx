@@ -3,7 +3,8 @@ import { CARD_CACHE, CARD_UTIL, loadMtg } from "../Loader/chyzMtg";
 import { MtgCard, MtgRulings } from "../api";
 import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
 import { TriggerableMulticastDelegate } from "ttpg-darrell";
-import { Counter, UI_SCALE, DEFAULT_ROTATION, autoSizeText } from "./types";
+import { autoSizeText, parseNumber } from "./types";
+import { UI_SCALE, DEFAULT_ROTATION, UI_HEIGHT, Counter } from "../ui";
 
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
@@ -42,27 +43,25 @@ function initCard(obj: Card) {
   const infoPanelToggled = new TriggerableMulticastDelegate<() => void>;
 
   let showPowerToughness = false;
-
   const power = new Counter();
   const toughness = new Counter();
 
-
   let showPlusOneCounters = false;
-  const plusOneCounterElement = createUiElement();
-  const plusOneCounterModifiersElement = createUiElement();
-  const plusOneCounterToggled = new TriggerableMulticastDelegate<() => void>();
-
+  const plusOneCounters = new Counter();
 
   let showLoyalty = false;
-
   const loyalty = new Counter();
 
   let showCounter = false;
-  const counterElement = createUiElement();
-  const counterModifiersElement = createUiElement();
-  const counterToggled = new TriggerableMulticastDelegate<() => void>();
+  const counter = new Counter();
 
   let hovered = false;
+
+  obj.onPrimaryAction.add(object => {
+    if (!CARD_UTIL.isLooseCard(obj)) return;
+    obj.setRotation(obj.getRotation().compose(new Rotator(0, (tapped ? 1 : -1) * 90, 0)), 1);
+    tapped = !tapped;
+  })
 
   const hoverChecker = setInterval(() => {
     const scale = obj.getScale();
@@ -103,52 +102,87 @@ function initCard(obj: Card) {
     if (card.type_line.includes("Planeswalker")) showLoyalty = true;
     initLoyalty();
 
+    if (card.oracle_text !== undefined && (card.oracle_text.match(/counter/i) || []).length > (card.oracle_text.match(/1 counter/i) || []).length) showCounter = true;
+    initCounter();
+
     showConfig = true;
     initConfigPanel();
   }
 
   function initPowerToughness() {
-    // power.detach(obj);
-    // toughness.detach(obj);
-    // if (card === undefined) return;
-
     power.value = card.power;
     toughness.value = card.toughness;
 
-    power.position = new Vector(-3.9, -2, -0.05);
+    power.position = new Vector(-3.9, -2.025, UI_HEIGHT);
     power.anchorX = 1;
 
-    toughness.position = new Vector(-3.9, -2.3, -0.05);
+    toughness.position = new Vector(-3.9, -2.275, UI_HEIGHT);
     toughness.anchorX = 0;
 
-    power.setAttached(obj, showPowerToughness);
-    toughness.setAttached(obj, showPowerToughness);
+    power.setAttached(showPowerToughness ? obj : undefined);
+    toughness.setAttached(showPowerToughness ? obj : undefined);
 
     obj.onTick.add(object => {
       power.updateVisibility(hovered);
       toughness.updateVisibility(hovered);
-    })
+    });
 
-    let test = new Counter(10);
+    let divider = createUiElement();
+    divider.zoomVisibility = UIZoomVisibility.Both;
 
-    test.position = new Vector(0, 0, -1);
+    divider.position = new Vector(-3.9, -2.15, UI_HEIGHT);
 
-    test.attach(obj);
+    divider.widget = render(<border>
+      <layout height={90}>
+        <button size={48}>/</button>
+      </layout>
+    </border>);
+
+    obj.addUI(divider);
   }
 
   function initLoyalty() {
-    // loyalty.detach(obj);
-    // if (card === undefined) return;
-
     loyalty.value = card.loyalty;
 
-    loyalty.position = new Vector(-3.7, -2.43, -0.05);
+    loyalty.position = new Vector(-3.7, -2.43, UI_HEIGHT);
 
-    loyalty.setAttached(obj, showLoyalty);
+    loyalty.setAttached(showLoyalty ? obj : undefined);
 
     obj.onTick.add(object => {
       loyalty.updateVisibility(hovered);
-    })
+    });
+  }
+
+  function initCounter() {
+    if (card.oracle_text !== undefined) {
+      let pattern = new RegExp(`${card.name} enters the battlefield with ([a-zA-Z\\s]+) counters on it`);
+
+      let matches = pattern.exec(card.oracle_text);
+
+      if (matches) {
+        let match = matches[1];
+        let number = match.substring(0, match.lastIndexOf(" "));
+        if (parseNumber(number) !== undefined) {
+          counter.value = parseNumber(number);
+        } else {
+          counter.value = number;
+        }
+      } else {
+        pattern = new RegExp(`${card.name} enters the battlefield with a ([a-zA-Z\\s]+) counter on it`);
+        matches = pattern.exec(card.oracle_text);
+        if (matches) {
+          counter.value = 1;
+        }
+      }
+    }
+
+    counter.position = new Vector(-0.1, 0, UI_HEIGHT);
+
+    counter.setAttached(showCounter ? obj : undefined);
+
+    obj.onTick.add(object => {
+      counter.updateVisibility(hovered);
+    });
   }
 
   function initConfigPanel() {
@@ -156,7 +190,7 @@ function initCard(obj: Card) {
     if (!showConfig) return;
 
     configElement.anchorX = 1;
-    configElement.position = new Vector(0, 3.25, -0.05);
+    configElement.position = new Vector(0, 3.25, UI_HEIGHT);
     configElement.castShadow = false;
 
     configElement.widget = render(
@@ -171,8 +205,8 @@ function initCard(obj: Card) {
               checked={showPowerToughness}
               onChange={(checkbox, player, state) => {
                 showPowerToughness = state;
-                power.setAttached(obj, state);
-                toughness.setAttached(obj, state)
+                power.setAttached(showPowerToughness ? obj : undefined);
+                toughness.setAttached(showPowerToughness ? obj : undefined);
               }}
             />
             <checkbox
@@ -181,7 +215,16 @@ function initCard(obj: Card) {
               checked={showLoyalty}
               onChange={(checkbox, player, state) => {
                 showLoyalty = state;
-                loyalty.setAttached(obj, state);
+                loyalty.setAttached(showLoyalty ? obj : undefined);
+              }}
+            />
+            <checkbox
+              size={56}
+              label={"Show Counter"}
+              checked={showCounter}
+              onChange={(checkbox, player, state) => {
+                showCounter = state;
+                counter.setAttached(showCounter ? obj : undefined);
               }}
             />
           </verticalbox>
@@ -231,7 +274,7 @@ function initCard(obj: Card) {
 //   let rightPanel = new UIElement();
 //   rightPanel.scale = 1 / 8;
 //   rightPanel.anchorX = 0;
-//   rightPanel.position = new Vector(0, -3.25, -0.05);
+//   rightPanel.position = new Vector(0, -3.25, UI_HEIGHT);
 //   //TODO fix make this angled inwards a bit once that's possible
 //   rightPanel.rotation = DEFAULT_ROTATION;
 //   rightPanel.castShadow = false;

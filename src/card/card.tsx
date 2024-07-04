@@ -1,11 +1,12 @@
 import { Border, Button, Card, Color, GameObject, HorizontalAlignment, PlayerPermission, refObject, Rotator, TextJustification, UIElement, UIZoomVisibility, Vector, VerticalBox, world } from "@tabletop-playground/api";
-import { CARD_CACHE, CARD_UTIL, loadMtg } from "../Loader/chyzMtg";
+import { loadMtg } from "../Loader/chyzMtg";
 import { MtgCard, MtgRulings } from "../api";
 import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
 import { TriggerableMulticastDelegate } from "ttpg-darrell";
 import { autoSizeText, parseNumber } from "./types";
 import { UI_SCALE, DEFAULT_ROTATION, UI_HEIGHT } from "../ui";
 import { Counter } from "../ui/counter";
+import { CARD_CACHE, CARD_UTIL } from "../index";
 
 
 const IMG_WIDTH = 672;

@@ -1,5 +1,5 @@
-import { Card, MultilineTextBox, Player, Text, TextJustification, UIElement, Vector, VerticalAlignment, Widget, world } from "@tabletop-playground/api";
-import { IWindowWidget, Window, WindowParams, WindowWidgetParams } from "ttpg-darrell";
+import { Border, Card, ImageWidget, MultilineTextBox, Player, refPackageId, Text, TextJustification, UIElement, Vector, VerticalAlignment, Widget, world } from "@tabletop-playground/api";
+import { IWindowWidget, NamespaceId, Window, WindowParams, WindowWidgetParams } from "ttpg-darrell";
 import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
 import { Tabs } from "ttpg-trh-ui";
 import { parseDeckList } from "../utils/deck_parser";
@@ -12,6 +12,8 @@ export function displayChyzMtgWindow(player: Player) {
   windowData.set(player, data);
   currentWindows.set(player, new ChyzMtgWindow(player, data).window);
 }
+
+const packageId = refPackageId;
 
 
 export class ChyzMtgWindow {
@@ -43,17 +45,26 @@ export class ChyzMtgWindow {
 
     const target = new UIElement();
     target.position = player.getCursorPosition().add([0, 0, 0.001]);
-    target.scale = 1 / 4;
+    target.scale = 1 / 8;
     target.castShadow = false;
     target.twoSided = true;
     target.players.addPlayer(player);
-    target.widget = new Text().setText("+").setFontSize(128).setTextColor(player.getPlayerColor());
+
+    const targetDisplay = new ImageWidget().setImageSize(256,256).setImage("ui/target.png", packageId);
+
+    let pulser = setInterval(() => {
+      let time = world.getGameTime();
+      targetDisplay.setTintColor([Math.sin(time) * 0.5 + 0.5, Math.sin(time + Math.PI * 2 / 3) * 0.5 + 0.5, Math.sin(time + Math.PI * 4 / 3) * 0.5 + 0.5, 1]);
+    },0);
+
+    target.widget = targetDisplay;
     world.addUI(target);
 
     const window = new Window(params, [player.getSlot()]).attach();
     window.onAllClosed.add(() => {
       world.removeUIElement(target);
       currentWindows.delete(player);
+      clearInterval(pulser);
     });
     this._window = window;
   }
@@ -98,6 +109,7 @@ export class ChyzMtgWindowWidget implements IWindowWidget {
                 if (card !== undefined) {
                   for (let i = 0; i < value.count; i++) {
                     let cardObject = world.createObjectFromTemplate(CARD_TEMPLATE, this._target) as Card;
+                    cardObject.setRotation([0, Math.round(player.getRotation()[1] / 90) * 90, 0]);
                     cardObject.setTextureOverrideURL(card.image_uris.png);
                     cardObject.flipOrUpright();
                     if (deckObject === undefined) {
@@ -123,6 +135,7 @@ export class ChyzMtgWindowWidget implements IWindowWidget {
                 const cardObject = world.createObjectFromTemplate(CARD_TEMPLATE, this._target);
                 if (cardObject) {
                   CARD_CACHE.addToCaches(card);
+                  cardObject.setRotation([0, Math.round(player.getRotation()[1] / 90) * 90, 0]);
                   (cardObject as Card).setTextureOverrideURL(card.image_uris.png);
                   cardObject.flipOrUpright();
                 }
@@ -141,15 +154,19 @@ export class ChyzMtgWindowWidget implements IWindowWidget {
 }
 
 export class ChyzMtgWindowData {
+  private readonly _persistentKey: NamespaceId | undefined;
+
   private _currentTab: number = 0;
   private _deckInput: string = "";
   private _cardInput: string = "";
 
   constructor(
+    persistentKey?: NamespaceId,
     tab: number = 0,
     deckInput: string = "",
     cardInput: string = ""
   ) {
+    this._persistentKey = persistentKey;
     this._currentTab = tab;
     this._deckInput = deckInput;
     this._cardInput = cardInput;

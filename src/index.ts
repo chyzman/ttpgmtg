@@ -1,5 +1,5 @@
 import { Player } from "@tabletop-playground/api";
-import { CardUtil, Window } from "ttpg-darrell";
+import { CardUtil, NamespaceId, Window } from "ttpg-darrell";
 import { ChyzMtgWindowData } from "./ui/chyzMtgWindow";
 import { CardCache } from "./utils/card_cache";
 
@@ -12,4 +12,4 @@ export const CARD_UTIL = new CardUtil();
 export const currentWindows = new Map<Player, Window>();
 export const windowData = new Map<Player, ChyzMtgWindowData>();
 
-export const id = (value: string) => ID + ":" + value;
+export function id(value: string): NamespaceId {return `@${ID}/${value}`}

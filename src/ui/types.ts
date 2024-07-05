@@ -35,7 +35,7 @@ export class ChyzUIElement {
 
   //endregion
 
-  //region Attached
+  //region Attach
 
   public get attachedObject() {
     return this._attached;

@@ -8,7 +8,6 @@ import { UI_SCALE, DEFAULT_ROTATION, UI_HEIGHT } from "../ui";
 import { Counter } from "../ui/counter";
 import { CARD_CACHE, CARD_UTIL } from "../index";
 
-
 const IMG_WIDTH = 672;
 const IMG_HEIGHT = 936;
 
@@ -22,7 +21,11 @@ const BLACK: Color = new Color(0, 0, 0, 1);
 
   const card = obj as Card;
 
-  card.onInserted.add(deck => deck.getUIs().map(ui => deck.removeUIElement(ui)));
+  card.onInserted.add(deck => deck.getUIs().map(ui => {
+    deck.removeUIElement(ui);
+    deck.setName("");
+    deck.setDescription("");
+  }));
   card.onRemoved.add(deck => initCard(deck));
 
   if (CARD_UTIL.isLooseCard(card)) initCard(card);

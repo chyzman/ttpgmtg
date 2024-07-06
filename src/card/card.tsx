@@ -108,7 +108,11 @@ function initCard(obj: Card) {
     if (card.type_line.includes("Planeswalker")) showLoyalty = true;
     initLoyalty();
 
-    if (card.oracle_text !== undefined && (card.oracle_text.match(/counter/i) || []).length > (card.oracle_text.match(/1 counter/i) || []).length) showCounter = true;
+    if (card.oracle_text !== undefined &&
+      (card.oracle_text.match(/counter/i) || []).length > (card.oracle_text.match(/1 counter/i) || []).length &&
+      !card.type_line.includes("Sorcery") &&
+      !card.type_line.includes("Instant")
+    ) showCounter = true;
     initCounter();
 
     showConfig = true;
@@ -117,7 +121,9 @@ function initCard(obj: Card) {
 
   function initPowerToughness() {
     power.value = card.power;
+    power.defaultValue = card.power;
     toughness.value = card.toughness;
+    toughness.defaultValue = card.toughness;
 
     power.position = new Vector(-3.9, -2.025, UI_HEIGHT);
     power.anchorX = 1;
@@ -149,6 +155,7 @@ function initCard(obj: Card) {
 
   function initLoyalty() {
     loyalty.value = card.loyalty;
+    loyalty.defaultValue = card.loyalty;
 
     loyalty.position = new Vector(-3.7, -2.43, UI_HEIGHT);
 
@@ -170,14 +177,17 @@ function initCard(obj: Card) {
         let number = match.substring(0, match.lastIndexOf(" "));
         if (parseNumber(number) !== undefined) {
           counter.value = parseNumber(number);
+          counter.defaultValue = parseNumber(number);
         } else {
           counter.value = number;
+          counter.defaultValue = number;
         }
       } else {
         pattern = new RegExp(`${card.name} enters the battlefield with a ([a-zA-Z\\s]+) counter on it`);
         matches = pattern.exec(card.oracle_text);
         if (matches) {
           counter.value = 1;
+          counter.defaultValue = 1;
         }
       }
     }

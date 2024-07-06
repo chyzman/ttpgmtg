@@ -1,11 +1,14 @@
 import { TriggerableMulticastDelegate } from "ttpg-darrell";
-import { Border, Button, GameObject, LayoutBox, StaticObject, UIElement, UIZoomVisibility, Vector, VerticalBox } from "@tabletop-playground/api";
+import { Border, Button, HorizontalAlignment, LayoutBox, MultilineTextBox, Player, TextBox, UIElement, UIZoomVisibility, Vector, VerticalBox } from "@tabletop-playground/api";
 import { ChyzUIElement, DEFAULT_ROTATION, UI_SCALE } from "./index";
 import { autoSizeText } from "../card/types";
+import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";
 
 export class Counter extends ChyzUIElement {
   private _value: string | number = 0;
   private _onValueChange = new TriggerableMulticastDelegate<((newValue: string | number) => void)>();
+
+  private _defaultValue = 0;
 
   private _element = new UIElement();
   private _displayElement = new UIElement();
@@ -33,6 +36,9 @@ export class Counter extends ChyzUIElement {
 
     this._incrementButton.setText("+").onClicked.add(() => this.value += 1);
     this._decrementButton.setText("-").onClicked.add(() => this.value -= 1);
+
+    this._valueButton.onClicked.add((button, player) => this.openEditor(player));
+
 
     this._layout.setChild(new Border().setChild(
       new VerticalBox()
@@ -90,6 +96,11 @@ export class Counter extends ChyzUIElement {
     return this._onValueChange;
   }
 
+  public set defaultValue(value: any) {
+    if (value === undefined) this._defaultValue = 0;
+    this._defaultValue = !isNaN(+value) ? +value : value;
+  }
+
   public set position(position: Vector) {
     this._element.position = position;
     this._displayElement.position = position.add([0, 0, 0.001]);
@@ -103,5 +114,61 @@ export class Counter extends ChyzUIElement {
   public updateVisibility(hovered: boolean) {
     this._layout.setVisible(hovered);
     this._displayLayout.setVisible(!hovered);
+  }
+
+  public openEditor(player: Player) {
+    if (!this.attachedObject) return;
+
+    let editor = new UIElement();
+    editor.scale = UI_SCALE;
+    editor.rotation = DEFAULT_ROTATION;
+    editor.castShadow = false;
+    editor.position = this._element.position.add([0, 0, -0.1]);
+    editor.players.addPlayer(player);
+
+    let tempValue = this._value;
+
+    let input = new TextBox().setText(tempValue.toString()).setFontSize(30).setInputType(1).setSelectTextOnFocus(true).setMaxLength(1023);
+    input.onTextChanged.add((text) => {
+      tempValue = text.getText();
+    });
+
+
+    function setTempValue(value: string | number) {
+      tempValue = value;
+      input.setText(tempValue.toString());
+    }
+
+    editor.widget = render(
+      <border>
+        <layout minWidth={150}>
+          <verticalbox halign={HorizontalAlignment.Fill}>
+            <horizontalbox>
+              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue / 2 : 0.5)}>/</button>)}
+              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue - 1 : -1)}>-</button>)}
+              {boxChild(1/6, <button onClick={button => setTempValue(this._defaultValue)}>d</button>)}
+              {boxChild(1/6, <button onClick={button => setTempValue(this.value)}>r</button>)}
+              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue + 1 : 1)}>+</button>)}
+              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue * 2 : 2)}>*</button>)}
+            </horizontalbox>
+            {input}
+            <horizontalbox>
+              {boxChild(0.5, <button
+                onClick={() => {
+                  this.value = tempValue;
+                  this.attachedObject?.removeUIElement(editor);
+                }}
+              >Save</button>)}
+              {boxChild(0.5, <button
+                onClick={() => this.attachedObject?.removeUIElement(editor)}
+              >Cancel</button>)}
+            </horizontalbox>
+          </verticalbox>
+        </layout>
+      </border>
+    );
+
+    this.attachedObject.addUI(editor);
+
   }
 }

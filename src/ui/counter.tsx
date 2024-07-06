@@ -141,27 +141,35 @@ export class Counter extends ChyzUIElement {
 
     editor.widget = render(
       <border>
-        <layout minWidth={150}>
+        <layout minWidth={200}>
           <verticalbox halign={HorizontalAlignment.Fill}>
             <horizontalbox>
-              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue / 2 : 0.5)}>/</button>)}
-              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue - 1 : -1)}>-</button>)}
-              {boxChild(1/6, <button onClick={button => setTempValue(this._defaultValue)}>d</button>)}
-              {boxChild(1/6, <button onClick={button => setTempValue(this.value)}>r</button>)}
-              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue + 1 : 1)}>+</button>)}
-              {boxChild(1/6, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue * 2 : 2)}>*</button>)}
+              {boxChild(1/2, <button onClick={button => setTempValue(this.value)}>previous</button>)}
+              {boxChild(1/2, <button onClick={button => setTempValue(this._defaultValue)}>default</button>)}
+            </horizontalbox>
+            <horizontalbox>
+              {boxChild(1/3,<verticalbox>
+                {boxChild(1/2, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue * 2 : 2)}>x2</button>)}
+                {boxChild(1/2, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue / 2 : 0.5)}>1/2</button>)}
+              </verticalbox>)}
+              {boxChild(1/3,<verticalbox>
+                {boxChild(1/2, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue + 10 : 10)}>+10</button>)}
+                {boxChild(1/2, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue - 10 : -10)}>-10</button>)}
+              </verticalbox>)}
+              {boxChild(1/3,<verticalbox>
+                {boxChild(1/2, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue + 1 : 1)}>+1</button>)}
+                {boxChild(1/2, <button onClick={button => setTempValue(!isNaN(+tempValue) ? +tempValue - 1 : -1)}>-1</button>)}
+              </verticalbox>)}
             </horizontalbox>
             {input}
             <horizontalbox>
-              {boxChild(0.5, <button
+              {boxChild(1 / 2, <button
                 onClick={() => {
                   this.value = tempValue;
                   this.attachedObject?.removeUIElement(editor);
                 }}
               >Save</button>)}
-              {boxChild(0.5, <button
-                onClick={() => this.attachedObject?.removeUIElement(editor)}
-              >Cancel</button>)}
+              {boxChild(1/2, <button onClick={() => this.attachedObject?.removeUIElement(editor)}>Cancel</button>)}
             </horizontalbox>
           </verticalbox>
         </layout>

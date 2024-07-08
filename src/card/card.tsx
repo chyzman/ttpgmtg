@@ -16,10 +16,8 @@ const CARD_HEIGHT = 8.898;
 
 const BLACK: Color = new Color(0, 0, 0, 1);
 
-((obj: GameObject) => {
-  loadMtg(false);
-
-  const card = obj as Card;
+((card: Card) => {
+  loadMtg();
 
   card.onInserted.add(deck => deck.getUIs().map(ui => {
     deck.removeUIElement(ui);
@@ -29,7 +27,7 @@ const BLACK: Color = new Color(0, 0, 0, 1);
   card.onRemoved.add(deck => initCard(deck));
 
   if (CARD_UTIL.isLooseCard(card)) initCard(card);
-})(refObject);
+})(refObject as Card);
 
 function initCard(obj: Card) {
   if (!CARD_UTIL.isLooseCard(obj)) return;
@@ -281,6 +279,15 @@ function initCard(obj: Card) {
     element.castShadow = false;
     return element;
   }
+
+}
+
+export class MagicCard extends Card {
+  private card: MtgCard;
+  private rulings: MtgRulings;
+
+  private tapped = false;
+
 
 }
 

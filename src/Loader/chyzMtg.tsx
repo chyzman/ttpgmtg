@@ -1,6 +1,7 @@
-import { globalEvents, world } from "@tabletop-playground/api";
+import { CardHolder, GameObject, globalEvents, world } from "@tabletop-playground/api";
 import { displayChyzMtgWindow } from "../ui/chyzMtgWindow";
-import { CARD_CACHE, id, ID } from "../index";
+import { CARD_CACHE, CARD_TEMPLATE, id, ID } from "../index";
+import { MagicCard } from "../card/card";
 
 let mtgLoaded = false;
 
@@ -12,6 +13,7 @@ export const loadMtg = (complainIfAlreadyLoaded: boolean = false) => {
     return false;
   }
   loadCustomActions();
+  loadCardEvents();
 
   mtgLoaded = true;
   world.getAllPlayers().forEach(player => player.showMessage(`${ID} is now loaded`));
@@ -25,7 +27,7 @@ export const loadMtg = (complainIfAlreadyLoaded: boolean = false) => {
 
 const OPEN_MENU_ACTION = id("open_menu");
 
-const loadCustomActions = () => {
+function loadCustomActions() {
   world.addCustomAction(`${ID}`, `open ${ID} Menu`, OPEN_MENU_ACTION);
 
   globalEvents.onCustomAction.add((player, id) => {
@@ -37,3 +39,23 @@ const loadCustomActions = () => {
     }
   });
 };
+
+function loadCardEvents() {
+  world.getAllObjects(true).forEach(obj => addCardHolderEvents(obj));
+  globalEvents.onObjectCreated.add(obj => addCardHolderEvents(obj));
+
+  function addCardHolderEvents(obj: GameObject) {
+    if (obj instanceof CardHolder) {
+      obj.onInserted.add((holder, card) => {
+        if (card.getTemplateId() == CARD_TEMPLATE) { // @ts-ignore
+          card.removeVisuals();
+        }
+      });
+      obj.onRemoved.add((holder, card) => {
+        if (card.getTemplateId() == CARD_TEMPLATE) { // @ts-ignore
+          card.tryInit();
+        }
+      });
+    }
+  }
+}

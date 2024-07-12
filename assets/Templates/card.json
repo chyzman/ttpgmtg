@@ -54,7 +54,7 @@
 	"UsedWithCardHolders": true,
 	"CanStack": true,
 	"UsePrimaryColorForSide": false,
-	"FrontTextureOverrideExposed": true,
+	"FrontTextureOverrideExposed": false,
 	"AllowFlippedInStack": false,
 	"MirrorBack": true,
 	"EmissiveFront": false,

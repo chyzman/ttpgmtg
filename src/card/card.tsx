@@ -14,20 +14,147 @@ const IMG_HEIGHT = 936;
 const CARD_WIDTH = 6.383;
 const CARD_HEIGHT = 8.898;
 
-const BLACK: Color = new Color(0, 0, 0, 1);
-
 ((card: Card) => {
   loadMtg();
 
-  card.onInserted.add(deck => deck.getUIs().map(ui => {
-    deck.removeUIElement(ui);
-    deck.setName("");
-    deck.setDescription("");
-  }));
-  card.onRemoved.add(deck => initCard(deck));
+  //region FIELDS
 
-  if (CARD_UTIL.isLooseCard(card)) initCard(card);
+  let magicCard: MtgCard;
+  let rulings: MtgRulings;
+
+  const power = new Counter();
+  power.position = new Vector(-3.9, -2.025, UI_HEIGHT);
+  power.anchorX = 1;
+
+  const toughness = new Counter();
+  toughness.position = new Vector(-3.9, -2.275, UI_HEIGHT);
+  toughness.anchorX = 0;
+
+  const loyalty = new Counter();
+  loyalty.position = new Vector(-3.7, -2.43, UI_HEIGHT);
+
+  //endregion
+
+  if (shouldHaveUI()) tryInit();
+  card.onInserted.add(() => removeVisuals());
+  card.onRemoved.add(() => tryInit());
+
+  function tryInit() {
+    if (card.getCardDetails() !== undefined &&
+      card.getCardDetails().textureOverrideURL !== undefined) {
+      CARD_CACHE.getCardFromUrl(card.getCardDetails().textureOverrideURL).then(mtgCard => {
+        if (mtgCard !== undefined && mtgCard.image_uris?.png !== undefined) {
+          magicCard = mtgCard;
+          initVisuals();
+        } else {
+          console.error(`Card not found in URL "${card.getCardDetails().textureOverrideURL}"`);
+          return;
+        }
+      }, reason => console.error(reason));
+    }
+  }
+
+  function initVisuals() {
+    card.setName(magicCard.name);
+    card.setDescription(magicCard.oracle_text !== undefined ? magicCard.oracle_text : "");
+
+    //region Power/Toughness
+    power.value = magicCard.power || 0;
+    power.defaultValue = power.value;
+
+    toughness.value = magicCard.toughness || 0;
+    toughness.defaultValue = toughness.value;
+
+    if (magicCard.type_line.includes("Creature")) {
+      power.setAttached(card);
+      toughness.setAttached(card);
+    }
+    //endregion
+
+    //region Loyalty
+
+    loyalty.value = magicCard.loyalty || 0;
+    loyalty.defaultValue = loyalty.value;
+
+    if (magicCard.type_line.includes("Planeswalker")) {
+      loyalty.setAttached(card);
+    }
+    //endregion
+  }
+
+  function removeVisuals() {
+    card.setName("");
+    card.setDescription("");
+
+    power.detach();
+    toughness.detach();
+
+    loyalty.detach();
+  }
+
+  //@ts-ignore
+  Card.prototype.tryInit = tryInit;
+  //@ts-ignore
+  Card.prototype.removeVisuals = removeVisuals;
+
+
+  function shouldHaveUI() {
+    return CARD_UTIL.isLooseCard(card);
+  }
+
 })(refObject as Card);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function initCard(obj: Card) {
   if (!CARD_UTIL.isLooseCard(obj)) return;
@@ -65,7 +192,7 @@ function initCard(obj: Card) {
     if (!CARD_UTIL.isLooseCard(obj)) return;
     obj.setRotation(obj.getRotation().compose(new Rotator(0, (tapped ? 1 : -1) * 90, 0)), 1);
     tapped = !tapped;
-  })
+  });
 
   const hoverChecker = setInterval(() => {
     const scale = obj.getScale();
@@ -283,11 +410,87 @@ function initCard(obj: Card) {
 }
 
 export class MagicCard extends Card {
-  private card: MtgCard;
-  private rulings: MtgRulings;
+  private card?: MtgCard;
+  private rulings?: MtgRulings;
 
   private tapped = false;
 
+  private _showPowerToughness = false;
+  private _power = new Counter();
+  private _toughness = new Counter();
+
+  private _showLoyalty = false;
+  private _loyalty = new Counter();
+
+
+  init() {
+    loadMtg();
+
+    this.onInserted.add(() => this.dismount());
+    this.onRemoved.add(() => this.mount());
+
+    if (this.shouldntHaveUI()) {
+      this.dismount();
+      return;
+    }
+
+    this._setupUI();
+
+    CARD_CACHE.getCardFromUrl(this.getCardDetails().textureOverrideURL).then(mtgCard => {
+      if (mtgCard !== undefined && mtgCard.image_uris?.png !== undefined) {
+        this.card = mtgCard;
+      } else {
+        console.error(`Card not found in URL "${this.getCardDetails().textureOverrideURL}"`);
+        return;
+      }
+    }, reason => console.error(reason));
+
+
+  }
+
+  _setupUI() {
+    this._power.position = new Vector(-3.9, -2.025, UI_HEIGHT);
+    this._power.anchorX = 1;
+
+    this._toughness.position = new Vector(-3.9, -2.275, UI_HEIGHT);
+    this._toughness.anchorX = 0;
+
+    this._loyalty.position = new Vector(-3.7, -2.43, UI_HEIGHT);
+  }
+
+  initCard() {
+    if (this.card === undefined) {
+      const cardFetcher = setInterval(() => {
+        if (this.getCardDetails() !== undefined && this.getCardDetails().textureOverrideURL !== undefined) {
+          clearInterval(cardFetcher);
+
+        }
+      })
+    }
+  }
+
+  mount() {
+    if (this._showPowerToughness) {
+      this._power.attach(this);
+      this._toughness.attach(this);
+    }
+
+    if (this._showLoyalty) this._loyalty.attach(this);
+
+
+  }
+
+  dismount() {
+    this._power.detach();
+    this._toughness.detach();
+
+    this._loyalty.detach();
+
+  }
+
+  shouldntHaveUI(): boolean {
+    return CARD_UTIL.isLooseCard(this);
+  }
 
 }
 

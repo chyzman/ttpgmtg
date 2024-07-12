@@ -1,5 +1,5 @@
 import { TriggerableMulticastDelegate } from "ttpg-darrell";
-import { Border, Button, HorizontalAlignment, LayoutBox, MultilineTextBox, Player, TextBox, UIElement, UIZoomVisibility, Vector, VerticalBox } from "@tabletop-playground/api";
+import { Border, Button, HorizontalAlignment, LayoutBox, Player, TextBox, UIElement, UIZoomVisibility, Vector, VerticalBox } from "@tabletop-playground/api";
 import { ChyzUIElement, DEFAULT_ROTATION, UI_SCALE } from "./index";
 import { autoSizeText } from "../card/types";
 import { boxChild, jsxInTTPG, render } from "jsx-in-ttpg";

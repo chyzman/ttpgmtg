@@ -1,14 +1,3 @@
-import { MtgCard } from "../api";
-
-export class MtgCardHandler {
-  private card: MtgCard;
-
-
-  constructor(card: MtgCard) {
-    this.card = card;
-  }
-}
-
 export function autoSizeText(text: string, min: number = 20, max: number = 48) {
   return Math.max(min, Math.min(max, max / (text.length / 3)));
 }

@@ -22,6 +22,10 @@ const CARD_HEIGHT = 8.898;
   let magicCard: MtgCard;
   let rulings: MtgRulings;
 
+  let tapped = false;
+
+  let showPowerToughness = false;
+
   const power = new Counter();
   power.position = new Vector(-3.9, -2.025, UI_HEIGHT);
   power.anchorX = 1;
@@ -30,6 +34,8 @@ const CARD_HEIGHT = 8.898;
   toughness.position = new Vector(-3.9, -2.275, UI_HEIGHT);
   toughness.anchorX = 0;
 
+
+  let showLoyalty = false;
   const loyalty = new Counter();
   loyalty.position = new Vector(-3.7, -2.43, UI_HEIGHT);
 
@@ -65,10 +71,7 @@ const CARD_HEIGHT = 8.898;
     toughness.value = magicCard.toughness || 0;
     toughness.defaultValue = toughness.value;
 
-    if (magicCard.type_line.includes("Creature")) {
-      power.setAttached(card);
-      toughness.setAttached(card);
-    }
+    if (magicCard.type_line.includes("Creature")) showPowerToughness = true;
     //endregion
 
     //region Loyalty
@@ -76,10 +79,12 @@ const CARD_HEIGHT = 8.898;
     loyalty.value = magicCard.loyalty || 0;
     loyalty.defaultValue = loyalty.value;
 
-    if (magicCard.type_line.includes("Planeswalker")) {
-      loyalty.setAttached(card);
-    }
+    if (magicCard.type_line.includes("Planeswalker")) showLoyalty = true;
     //endregion
+  }
+
+  function updateVisuals() {
+
   }
 
   function removeVisuals() {
@@ -103,7 +108,6 @@ const CARD_HEIGHT = 8.898;
   }
 
 })(refObject as Card);
-
 
 
 
